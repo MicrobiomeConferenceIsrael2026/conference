@@ -38,6 +38,22 @@ until someone tells you.
 Worth turning on while you're there: **Get email notifications for new
 responses**, so you see registrations arrive without checking the sheet.
 
+### Optional: require English answers
+
+Run `tools/enforce-english.gs` the same way you ran the first script — paste it
+into <https://script.google.com>, put your form's `/edit` URL at the top, press
+Run. It adds validation to every free-text question so Google refuses answers
+containing Hebrew or Arabic, and adds "Please complete this form in English" to
+the form description.
+
+Greek is deliberately left alone — α-diversity and μg belong in abstracts — as
+are accented Latin names like Müller. And it's a script check, not a language
+check: nothing stops someone writing in French or transliterating. It catches
+the realistic case, which is somebody typing their name in Hebrew.
+
+Safe to run more than once; it won't overwrite the email validation or the
+300-word cap.
+
 ---
 
 ## 2. Connect the form to the site

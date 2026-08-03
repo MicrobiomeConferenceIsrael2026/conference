@@ -15,6 +15,19 @@
  * Everything it creates lives in your Google Drive and belongs to you.
  */
 
+// Free-text answers reject Hebrew (U+0590–05FF) and Arabic (U+0600–06FF) so
+// the committee can read every submission. Greek is deliberately allowed —
+// α-diversity and μg belong in abstracts — as are accented Latin names.
+var BLOCKED = '֐-׿؀-ۿ';
+var ENGLISH_ONLY = 'Please answer in English — this field cannot contain Hebrew or Arabic.';
+
+function englishText() {
+  return FormApp.createTextValidation()
+    .setHelpText(ENGLISH_ONLY)
+    .requireTextDoesNotMatchPattern('[' + BLOCKED + ']')
+    .build();
+}
+
 function createRegistrationForm() {
   var TITLE = 'Microbiome 2026 — Registration';
 
@@ -22,7 +35,8 @@ function createRegistrationForm() {
   form.setTitle(TITLE);
   form.setDescription(
     'Sunday, October 25, 2026 · Azrieli Faculty of Medicine, Bar-Ilan University, Safed\n' +
-      'Free to attend. Abstract deadline: September 6, 2026.'
+      'Free to attend. Abstract deadline: September 6, 2026.\n' +
+      'Please complete this form in English.'
   );
   form.setProgressBar(true);
   form.setShowLinkToRespondAgain(false);
@@ -51,7 +65,8 @@ function createRegistrationForm() {
   form.addTextItem()
     .setTitle('Full name')
     .setHelpText('As it should appear on your badge')
-    .setRequired(true);
+    .setRequired(true)
+    .setValidation(englishText());
 
   var email = form.addTextItem()
     .setTitle('Email address')
@@ -64,7 +79,11 @@ function createRegistrationForm() {
       .build()
   );
 
-  form.addTextItem().setTitle('Affiliation').setHelpText('University or company').setRequired(true);
+  form.addTextItem()
+    .setTitle('Affiliation')
+    .setHelpText('University or company')
+    .setRequired(true)
+    .setValidation(englishText());
 
   form.addListItem()
     .setTitle('Role')
@@ -80,12 +99,13 @@ function createRegistrationForm() {
     ])
     .setRequired(true);
 
-  form.addTextItem().setTitle('Country').setRequired(false);
+  form.addTextItem().setTitle('Country').setRequired(false).setValidation(englishText());
 
   form.addTextItem()
     .setTitle('Dietary or access needs')
     .setHelpText('Vegetarian, step-free access, anything else we should arrange')
-    .setRequired(false);
+    .setRequired(false)
+    .setValidation(englishText());
 
   /* ---------------- the branch ---------------- */
 
@@ -114,12 +134,13 @@ function createRegistrationForm() {
     .setHelpText('Talk slots are limited; the committee may offer a poster instead.')
     .setRequired(true);
 
-  form.addTextItem().setTitle('Abstract title').setRequired(true);
+  form.addTextItem().setTitle('Abstract title').setRequired(true).setValidation(englishText());
 
   form.addTextItem()
     .setTitle('Authors')
     .setHelpText('Presenting author first, comma separated. No affiliations needed.')
-    .setRequired(true);
+    .setRequired(true)
+    .setValidation(englishText());
 
   var body = form.addParagraphTextItem()
     .setTitle('Abstract text')
@@ -127,8 +148,8 @@ function createRegistrationForm() {
     .setRequired(true);
   body.setValidation(
     FormApp.createParagraphTextValidation()
-      .requireTextLengthLessThanOrEqualTo(2200)
-      .setHelpText('That is longer than 300 words — please shorten it.')
+      .setHelpText(ENGLISH_ONLY + ' Maximum 300 words.')
+      .requireTextMatchesPattern('^[^' + BLOCKED + ']{0,2200}$')
       .build()
   );
 
@@ -136,7 +157,15 @@ function createRegistrationForm() {
 
   /* ---------------- final section ---------------- */
 
-  form.addParagraphTextItem().setTitle('Anything else we should know?').setRequired(false);
+  form.addParagraphTextItem()
+    .setTitle('Anything else we should know?')
+    .setRequired(false)
+    .setValidation(
+      FormApp.createParagraphTextValidation()
+        .setHelpText(ENGLISH_ONLY)
+        .requireTextDoesNotMatchPattern('[' + BLOCKED + ']')
+        .build()
+    );
 
   form.addCheckboxItem()
     .setTitle('Mailing list')
@@ -170,7 +199,7 @@ function createRegistrationForm() {
   Logger.log('   1. Responses -> Collect email addresses -> Responder input');
   Logger.log('   2. Responses -> Send responders a copy of their response -> Always');
   Logger.log('      (this is the confirmation email)');
-  Logger.log('   3. Responses -> Restrict to users in your organisation -> OFF');
+  Logger.log('   3. Responses -> Restrict to users in your organization -> OFF');
   Logger.log('      (otherwise only Bar-Ilan accounts can register)');
   Logger.log('   4. Optional: Responses -> Get email notifications for new responses');
   Logger.log('');

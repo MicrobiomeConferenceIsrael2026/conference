@@ -84,7 +84,8 @@ tools/
   preview.js              serves docs/           (npm run preview)
   share.js                temporary public link  (npm run share)
   test-static.js          29 checks              (npm run smoke)
-  create-google-form.gs   paste into script.google.com
+  create-google-form.gs   builds the form   — paste into script.google.com
+  enforce-english.gs      English-only answers — paste into script.google.com
 docs/                     the built site — committed, this is what Pages serves
 .github/workflows/        rebuild + publish on push
 ```
