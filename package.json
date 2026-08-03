@@ -11,6 +11,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
+    "share": "node tools/share.js",
     "init-secrets": "node tools/init-secrets.js",
     "keys": "node tools/print-env.js",
     "smoke": "node tools/smoke-test.js",

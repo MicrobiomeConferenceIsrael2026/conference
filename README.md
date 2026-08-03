@@ -30,7 +30,15 @@ down. To choose your own:
 npm run init-secrets -- --user omry --password 'a long passphrase'
 ```
 
-To check everything still works after you change something:
+To show it to someone — on your phone, or a colleague anywhere — without
+deploying:
+
+```bash
+npm run share            # temporary public HTTPS link, dies when you Ctrl-C
+```
+
+See [DEPLOY.md](DEPLOY.md) Part 0.5. To check everything still works after you
+change something:
 
 ```bash
 npm run smoke            # 74 checks: database driver, sessions, pages,
@@ -185,6 +193,7 @@ public/img/               generated imagery
 tools/
   init-secrets.js         creates .env
   print-env.js            prints secrets for a hosting dashboard (npm run keys)
+  share.js                temporary public link for testing (npm run share)
   smoke-test.js           74 end-to-end checks
   generate_images.py      regenerates public/img (needs numpy, pillow, scipy)
 data/                     database + outbox — gitignored, never leaves the machine

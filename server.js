@@ -484,13 +484,23 @@ app.use((err, req, res, _next) => {
 /* -------------------------------------------------------------------------- */
 
 if (require.main === module) {
-  app.listen(config.port, () => {
+  // Bind to every interface so a phone on the same Wi-Fi can reach it.
+  app.listen(config.port, '0.0.0.0', () => {
+    const lan = Object.values(require('os').networkInterfaces())
+      .flat()
+      .filter((a) => a && a.family === 'IPv4' && !a.internal)
+      .map((a) => a.address);
+
     console.log(`\n  ${content.shortTitle}`);
-    console.log(`  running at ${config.publicUrl}`);
-    console.log(`  admin at   ${config.publicUrl}/admin/login  (user: ${config.admin.user})`);
-    console.log(`  database   ${store.DB_PATH}  (${store.driver})`);
+    console.log(`  this computer   http://localhost:${config.port}`);
+    for (const ip of lan) {
+      console.log(`  same Wi-Fi      http://${ip}:${config.port}   (phone, tablet, colleague next door)`);
+    }
+    console.log(`  anywhere        npm run share   (temporary public HTTPS link)`);
+    console.log(`  organizers      http://localhost:${config.port}/admin/login  (user: ${config.admin.user})`);
+    console.log(`  database        ${store.DB_PATH}  (${store.driver})`);
     console.log(
-      `  email     ${config.smtp.enabled ? `SMTP ${config.smtp.host}` : 'NOT configured — confirmations saved to data/outbox/'}\n`
+      `  email           ${config.smtp.enabled ? `SMTP ${config.smtp.host}` : 'not configured — confirmations saved to data/outbox/'}\n`
     );
   });
 }

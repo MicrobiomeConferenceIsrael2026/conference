@@ -77,6 +77,62 @@ byte-identical either way, so this changes nothing you can see.
 
 ---
 
+## Part 0.5 — Show it to people without deploying anything
+
+You do not need hosting to test the site, open it on your phone, or send a link
+to the committee. Three ways, in increasing reach.
+
+### Your own phone, over Wi-Fi
+
+```bash
+npm start
+```
+
+The startup banner now prints a `same Wi-Fi` line — something like
+`http://192.168.1.24:3000`. Type that into your phone's browser. Your phone and
+your Mac have to be on the same network, and macOS may ask you to allow
+incoming connections the first time.
+
+Good for checking the layout on a real phone. Useless for anyone not in the
+building.
+
+### A temporary public link — for collaborators
+
+```bash
+npm run share
+```
+
+This starts the server and puts a Cloudflare tunnel in front of it, giving you a
+real HTTPS address like `https://weekly-tiger-forest.trycloudflare.com`. Send it
+to anyone, anywhere. It works on phones, it works through firewalls, and there
+is no signup.
+
+One-time setup:
+
+```bash
+brew install cloudflared
+```
+
+If you skip that, `npm run share` tells you the alternatives — including
+`npx localtunnel --port 3000`, which needs nothing installed.
+
+What to know before you send the link:
+
+- **It only lives while the command runs.** Close the terminal, shut the laptop,
+  or lose Wi-Fi and the link dies. Every run generates a different address.
+- **It is genuinely public.** Anyone with the URL can register, and `/admin/login`
+  is reachable too. Rate limiting and the password still apply, but treat
+  anything submitted as test data and clear it afterwards.
+- **Registrations are real** and land in your local `data/registrations.db`.
+  Delete the test ones from the admin page when you're done, or stop the server
+  and delete `data/` to start clean.
+- Confirmation emails still go to `data/outbox/` unless you have configured SMTP.
+
+This is the right tool for "have a look and tell me what you think". It is not
+a way to run the actual conference — for that you need Part 2.
+
+---
+
 ## Part 1 — Put it in git
 
 The repository is already configured to keep secrets out: `.gitignore` excludes
@@ -116,6 +172,35 @@ You need somewhere that runs Node **and gives you a disk that survives
 restarts**, because the registrations live in a SQLite file. That rules out
 GitHub Pages, Netlify and Vercel — they only serve static files or short-lived
 functions.
+
+### Why GitHub Pages can't do this
+
+GitHub Pages serves files. It runs no code of yours, has no database, and has
+nowhere to put anything a visitor submits. That isn't a limit you can engineer
+around — a registration form needs *something* on the other end to receive the
+submission, and Pages has no other end.
+
+So "the same site, but on GitHub Pages" isn't a smaller version of this project;
+it's a different architecture. The realistic variants:
+
+| Approach | Effort | Where registrations live | Honest assessment |
+|---|---|---|---|
+| **Pages + Google Form** | ~1 hour | Google's servers | Fine, and genuinely secure — but it's Google's security, not yours. No encryption under your key, the form looks like a Google form, and abstracts land in a spreadsheet. |
+| **Pages + Formspree / Netlify Forms** | ~1 hour | The vendor | Same trade. Free tiers cap out around 50–100 submissions/month, which a conference will exceed. |
+| **Cloudflare Pages + Workers + D1** | ~1 day | Cloudflare's database, encrypted with your key | The real answer if you want free, git-push deploys, and the current security model. Not GitHub Pages, but it deploys *from* your GitHub repo the same way. Free tier covers a conference comfortably. |
+| **Keep what you have** | done | Your server, your key | Already built and tested. Needs a host that runs Node — Render, Fly, or your university. |
+
+The thing you'd give up in the first two rows is the property that took the most
+care to build: personal data and unpublished abstracts encrypted at rest with a
+key that only you hold. On Google Forms, Google can read every abstract. That
+may be perfectly acceptable to you — plenty of conferences run on Google Forms —
+but it's the actual trade, so it's worth naming rather than discovering later.
+
+If free-and-git-deployed is the requirement, the Cloudflare row is the one to
+pick. Roughly a day of work: the pages and CSS carry over unchanged, the Express
+routes become Worker handlers, SQLite becomes D1 (same SQL), and the encryption
+and session code port almost as-is since they're plain Web Crypto and cookies.
+Say the word and I'll do it.
 
 Set `NODE_ENV=production` on any real host. It switches on HSTS and
 HTTPS-only cookies. Do **not** set it if you are on plain `http://`, or you
