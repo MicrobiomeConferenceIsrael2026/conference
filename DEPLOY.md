@@ -50,6 +50,31 @@ Open <http://localhost:3000>. Stop the server with `Ctrl-C`.
 > skip to Part 2 and let the host build it. Running it locally is just the
 > quickest way to look at your edits before anyone else sees them.
 
+### Things npm says that you can ignore
+
+`npm install` is chatty. These three are normal:
+
+**"1 high severity vulnerability" / `npm audit`** — this was real: an old
+`nodemailer` with an SMTP-injection flaw. It is fixed; `package.json` now pins
+`nodemailer ^9.0.3` and `npm audit` reports zero. If you installed before that
+fix, run `npm install` once more. Never run `npm audit fix --force` on a whim —
+it upgrades across breaking changes without asking.
+
+**"npm warn allow-scripts … better-sqlite3"** — newer npm asks before letting a
+package run an install script. `better-sqlite3` uses one to fetch its prebuilt
+binary. Either allow it:
+
+```bash
+npm approve-scripts better-sqlite3 && npm install
+```
+
+...or ignore it entirely. The site detects a missing binary and falls back to
+Node's own built-in SQLite (`node:sqlite`, Node 22.5+). The database file is
+byte-identical either way, so this changes nothing you can see.
+
+**"npm warn deprecated prebuild-install"** — a transitive dependency of
+`better-sqlite3`, not something in this project. Nothing to do.
+
 ---
 
 ## Part 1 — Put it in git
