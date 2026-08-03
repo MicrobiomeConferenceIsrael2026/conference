@@ -39,7 +39,12 @@ jobs:
       - name: Build the site
         run: npm run build
 
+      # enablement: true turns Pages on if it isn't already, instead of failing
+      # with "Get Pages site failed … Not Found". Without it, someone has to
+      # visit Settings → Pages and pick "GitHub Actions" before the first run.
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - uses: actions/upload-pages-artifact@v3
         with:

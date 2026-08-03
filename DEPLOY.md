@@ -299,6 +299,15 @@ If you get something like `microbiome2026.org`:
 Either Source isn't set to GitHub Actions (step 5), or the workflow failed.
 The Actions tab shows a red X on the failing step, with its log.
 
+**The Action fails with "Get Pages site failed … Error: Not Found".**
+Pages has not been switched on for the repository yet. Settings → Pages →
+Source: **GitHub Actions**, then **Re-run jobs** on the failed run. The workflow
+also passes `enablement: true`, which turns Pages on by itself, so this should
+only ever happen on a very first run.
+
+**Warning: "Node.js 20 is deprecated".**
+Informational. GitHub runs those actions on a newer Node for you. Nothing to do.
+
 **The page loads but has no styling, and images are missing.**
 Absolute paths — the classic Pages failure, because a project site lives under
 `/repo-name/`. `npm run smoke` checks for this specifically, so run the build
