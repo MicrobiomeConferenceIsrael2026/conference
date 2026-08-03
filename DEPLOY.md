@@ -168,10 +168,43 @@ git branch -M main
 git push -u origin main
 ```
 
-GitHub will ask you to authenticate — a browser window is easiest. If it asks
-for a password in the terminal, it means a personal access token, not your
-account password: <https://github.com/settings/tokens> → Generate new token
-(classic) → tick `repo`.
+### Authentication
+
+GitHub stopped accepting account passwords for git in 2021. When it prompts for
+a password it means a **personal access token**.
+
+<https://github.com/settings/tokens> → Generate new token (classic) → tick
+**both**:
+
+- `repo`
+- `workflow` ← this repo contains `.github/workflows/pages.yml`, and GitHub
+  refuses to accept a push that adds or changes a workflow file without it
+
+Paste the token where git asks for a password. macOS remembers it after that.
+
+Easier, if you have the GitHub CLI: `gh auth login` handles the whole thing —
+browser sign-in, correct scopes, credential storage — and you never see a token.
+
+**"refusing to allow a Personal Access Token to create or update workflow"**
+
+Your token is missing `workflow`. Don't make a new one — edit the existing one:
+<https://github.com/settings/tokens> → click the token → tick `workflow` →
+**Update token**. The token string stays the same, so your saved credential
+still works and you can just push again.
+
+If you do generate a new token, clear the old one from the keychain first or git
+will keep sending it:
+
+```bash
+printf "protocol=https\nhost=github.com\n\n" | git credential-osxkeychain erase
+git push -u origin main
+```
+
+**"Permission to …/….git denied"** with a 403
+
+The username you signed in as doesn't have write access to that repository —
+usually a token belonging to a different account than the one that owns the
+repo. Check `git remote -v` matches the account your token belongs to.
 
 ---
 
@@ -192,10 +225,17 @@ run takes a minute or two.
 When the green tick appears, your site is at:
 
 ```
-https://YOUR-USERNAME.github.io/microbiome2026/
+https://YOUR-USERNAME.github.io/REPO-NAME/
 ```
 
 Settings → Pages shows the exact URL at the top.
+
+**Worth knowing:** if you name the repository exactly `YOUR-USERNAME.github.io`,
+GitHub serves it at the root instead — `https://your-username.github.io/`, with
+no repo name in the path. Each account gets one of these. If you made a dedicated
+account for the conference, that is the better URL to hand out. You can rename an
+existing repo under Settings → General → Repository name; the site rebuilds and
+moves by itself.
 
 If the workflow didn't start, push anything — `git commit --allow-empty -m
 "trigger" && git push` — or use Actions → Deploy to GitHub Pages → **Run
