@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title><%= reg.ref %> — <%= c.shortTitle %></title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+<%- include('partials/admin-bar') %>
+
+<main class="admin-main">
+  <div class="wrap">
+    <p style="font-size:13px"><a href="/admin">← All registrations</a></p>
+    <h1 style="margin-top:8px"><%= reg.full_name %></h1>
+    <p style="color:var(--muted);font-size:14px;margin-top:6px">
+      Reference <strong><%= reg.ref %></strong> · registered <%= reg.created_at.slice(0,16).replace('T',' ') %>
+    </p>
+
+    <div class="detail-grid" style="margin-top:26px">
+      <div>
+        <% if (reg.submits_abstract) { %>
+          <div class="panel">
+            <div class="panel__head">Abstract — <%= reg.abstract_type %> requested</div>
+            <div class="panel__body">
+              <h2 style="font-family:var(--serif);font-size:1.4rem"><%= reg.abstract_title %></h2>
+              <p style="font-family:var(--sans);font-size:14px;color:var(--muted);margin-top:8px"><%= reg.abstract_authors %></p>
+              <div class="abstract-body" style="margin-top:18px"><%= reg.abstract_body %></div>
+              <p style="font-family:var(--sans);font-size:12.5px;color:var(--muted);margin-top:10px">
+                <%= reg.abstract_body.trim().split(/\s+/).length %> words
+              </p>
+
+              <form method="post" action="/admin/registration/<%= reg.id %>/abstract" style="margin-top:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                <input type="hidden" name="_csrf" value="<%= csrf %>">
+                <label class="field__label" style="margin:0" for="status">Decision</label>
+                <select id="status" name="status" style="width:auto;min-width:190px">
+                  <% ['pending','accepted-talk','accepted-poster','rejected'].forEach(function (s) { %>
+                    <option value="<%= s %>" <%= reg.abstract_status === s ? 'selected' : '' %>><%= s %></option>
+                  <% }); %>
+                </select>
+                <button class="btn btn--outline btn--sm" type="submit">Save</button>
+              </form>
+            </div>
+          </div>
+        <% } else { %>
+          <div class="panel">
+            <div class="panel__head">Abstract</div>
+            <div class="panel__body" style="color:var(--muted);font-family:var(--sans);font-size:14px">
+              No abstract submitted — attending only.
+            </div>
+          </div>
+        <% } %>
+      </div>
+
+      <div>
+        <div class="panel">
+          <div class="panel__head">Participant</div>
+          <div class="panel__body">
+            <dl class="kv">
+              <dt>Name</dt><dd><%= reg.full_name %></dd>
+              <dt>E-mail</dt><dd><a href="mailto:<%= reg.email %>"><%= reg.email %></a></dd>
+              <dt>Affiliation</dt><dd><%= reg.affiliation %></dd>
+              <dt>Role</dt><dd><%= reg.role %></dd>
+              <dt>Country</dt><dd><%= reg.country || '—' %></dd>
+              <dt>Dietary / access</dt><dd><%= reg.dietary || '—' %></dd>
+              <dt>Notes</dt><dd><%= reg.notes || '—' %></dd>
+              <dt>Mailing list</dt><dd><%= reg.consent_updates ? 'Yes' : 'No' %></dd>
+              <dt>Confirmation</dt><dd><%= reg.mail_status %></dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:20px">
+          <div class="panel__head">Danger zone</div>
+          <div class="panel__body">
+            <p style="font-family:var(--sans);font-size:13.5px;color:var(--ink-soft);margin-bottom:14px">
+              Permanently deletes this registration and its abstract. There is no undo.
+            </p>
+            <form method="post" action="/admin/registration/<%= reg.id %>/delete"
+                  data-confirm="Delete <%= reg.full_name %> (<%= reg.ref %>) permanently?">
+              <input type="hidden" name="_csrf" value="<%= csrf %>">
+              <button class="btn btn--outline btn--sm danger" type="submit"
+                      style="border-color:#edc9d0">Delete registration</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<script src="/js/admin.js" defer></script>
+</body>
+</html>

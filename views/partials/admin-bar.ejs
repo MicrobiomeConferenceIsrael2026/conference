@@ -1,0 +1,17 @@
+<div class="admin-bar">
+  <div class="wrap admin-bar__inner">
+    <div class="admin-bar__brand">
+      <span class="admin-bar__pill">Organisers</span>
+      <a href="/admin"><%= c.shortTitle %> registrations</a>
+    </div>
+    <div class="admin-bar__right">
+      <a href="/" target="_blank" rel="noopener">View public site ↗</a>
+      <a href="/admin/export.csv">Export CSV</a>
+      <a href="/admin/abstracts.txt">Abstracts</a>
+      <form method="post" action="/admin/logout" class="inline-form">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <button class="linkbtn" type="submit">Sign out</button>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= typeof pageTitle !== 'undefined' ? pageTitle + ' — ' + c.shortTitle : c.title %></title>
+  <meta name="description" content="<%= c.subtitle %> <%= c.date %>, <%= c.venue %>, <%= c.venueCity %>.">
+  <meta name="theme-color" content="#101c3d">
+  <meta property="og:title" content="<%= c.title %>">
+  <meta property="og:description" content="<%= c.date %> · <%= c.venue %>, <%= c.venueCity %>">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="/img/hero-microbiome.jpg">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>

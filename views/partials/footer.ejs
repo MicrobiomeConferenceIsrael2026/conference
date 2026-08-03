@@ -1,0 +1,38 @@
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="site-footer__grid">
+      <div>
+        <h4><%= c.shortTitle %></h4>
+        <p style="margin:0 0 10px"><%= c.title %></p>
+        <p style="margin:0"><%= c.date %> · <%= c.timeRange %><br>
+        <%= c.venue %><br><%= c.venueCity %></p>
+      </div>
+      <div>
+        <h4>The conference</h4>
+        <ul>
+          <li><a href="/#about">About</a></li>
+          <li><a href="/#speakers">Speakers</a></li>
+          <li><a href="/#programme">Programme</a></li>
+          <li><a href="/#abstracts">Abstract submission</a></li>
+          <li><a href="/#committee">Organising committee</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Take part</h4>
+        <ul>
+          <li><a href="/register">Register</a></li>
+          <li><a href="/#dates">Key dates</a></li>
+          <li><a href="mailto:<%= c.contactEmail %>"><%= c.contactEmail %></a></li>
+          <li><a href="/admin/login">Organiser login</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="site-footer__bottom">
+      <span>© <%= year %> <%= c.shortTitle %> organising committee.</span>
+      <span>Registration data is stored encrypted and is never shared.</span>
+    </div>
+  </div>
+</footer>
+<script src="/js/site.js" defer></script>
+</body>
+</html>

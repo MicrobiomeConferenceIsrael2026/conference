@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Registrations — <%= c.shortTitle %></title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+<%- include('partials/admin-bar') %>
+
+<main class="admin-main">
+  <div class="wrap">
+    <h1>Registrations</h1>
+
+    <% if (!smtpConfigured) { %>
+      <div class="alert alert--warn" style="margin-top:18px">
+        <strong>SMTP is not configured.</strong> Registrations are saved normally, but
+        confirmation e-mails are written to <code>data/outbox/</code> instead of being sent.
+        Add <code>SMTP_HOST</code> and friends to <code>.env</code> and restart to switch mail on.
+      </div>
+    <% } %>
+
+    <div class="stat-row">
+      <div class="stat"><div class="stat__k">Registered</div><div class="stat__v"><%= stats.total %></div></div>
+      <div class="stat"><div class="stat__k">Abstracts</div><div class="stat__v"><%= stats.abstracts %></div></div>
+      <div class="stat"><div class="stat__k">Talk requests</div><div class="stat__v"><%= stats.talks %></div></div>
+      <div class="stat"><div class="stat__k">Posters</div><div class="stat__v"><%= stats.posters %></div></div>
+    </div>
+
+    <form class="toolbar" method="get" action="/admin">
+      <input type="text" name="q" value="<%= q %>" placeholder="Search name, e-mail, institution, title…">
+      <input type="hidden" name="filter" value="<%= filter %>">
+      <button class="btn btn--outline btn--sm" type="submit">Search</button>
+      <div class="chips">
+        <a class="chip <%= !filter ? 'is-on' : '' %>" href="/admin<%= q ? '?q=' + encodeURIComponent(q) : '' %>">All</a>
+        <a class="chip <%= filter === 'abstracts' ? 'is-on' : '' %>" href="/admin?filter=abstracts<%= q ? '&q=' + encodeURIComponent(q) : '' %>">With abstract</a>
+        <a class="chip <%= filter === 'talks' ? 'is-on' : '' %>" href="/admin?filter=talks<%= q ? '&q=' + encodeURIComponent(q) : '' %>">Talks</a>
+        <a class="chip <%= filter === 'posters' ? 'is-on' : '' %>" href="/admin?filter=posters<%= q ? '&q=' + encodeURIComponent(q) : '' %>">Posters</a>
+      </div>
+      <div class="toolbar__spacer"></div>
+      <span style="font-size:13px;color:var(--muted)"><%= rows.length %> shown</span>
+    </form>
+
+    <div class="table-wrap">
+      <% if (!rows.length) { %>
+        <div class="empty">
+          <p>No registrations match.</p>
+        </div>
+      <% } else { %>
+      <table class="data">
+        <thead>
+          <tr>
+            <th>Ref</th><th>Name</th><th>E-mail</th><th>Affiliation</th>
+            <th>Role</th><th>Abstract</th><th>Status</th><th>Mail</th><th>Registered</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% rows.forEach(function (r) { %>
+            <tr>
+              <td class="ref"><a href="/admin/registration/<%= r.id %>"><%= r.ref %></a></td>
+              <td class="name"><a href="/admin/registration/<%= r.id %>" style="color:inherit"><%= r.full_name %></a></td>
+              <td><a href="mailto:<%= r.email %>"><%= r.email %></a></td>
+              <td><%= r.affiliation %></td>
+              <td style="color:var(--muted)"><%= r.role %></td>
+              <td>
+                <% if (r.submits_abstract) { %>
+                  <span class="pill pill--<%= r.abstract_type === 'talk' ? 'talk' : 'poster' %>"><%= r.abstract_type %></span>
+                <% } else { %>
+                  <span class="pill pill--none">—</span>
+                <% } %>
+              </td>
+              <td>
+                <% if (r.submits_abstract) { %>
+                  <span class="pill pill--<%= r.abstract_status === 'rejected' ? 'bad' : (r.abstract_status === 'pending' ? 'warn' : 'ok') %>"><%= r.abstract_status %></span>
+                <% } else { %>—<% } %>
+              </td>
+              <td><span class="pill pill--<%= r.mail_status === 'sent' ? 'ok' : (String(r.mail_status).startsWith('failed') ? 'bad' : 'warn') %>"><%= r.mail_status %></span></td>
+              <td style="color:var(--muted);white-space:nowrap"><%= r.created_at.slice(0, 16).replace('T', ' ') %></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+      <% } %>
+    </div>
+
+    <div class="panel" style="margin-top:26px">
+      <div class="panel__head">Recent activity</div>
+      <div class="panel__body audit">
+        <ul>
+          <% audit.forEach(function (a) { %>
+            <li><%= a.at.slice(0, 19).replace('T', ' ') %> · <%= a.actor %> · <%= a.action %><%= a.detail ? ' · ' + a.detail : '' %></li>
+          <% }); %>
+          <% if (!audit.length) { %><li>Nothing yet.</li><% } %>
+        </ul>
+      </div>
+    </div>
+  </div>
+</main>
+</body>
+</html>

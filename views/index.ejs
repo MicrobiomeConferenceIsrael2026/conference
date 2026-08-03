@@ -1,0 +1,277 @@
+<%- include('partials/head', { pageTitle: undefined }) %>
+<%- include('partials/header') %>
+
+<main id="main">
+
+  <!-- ================= HERO ================= -->
+  <section class="hero">
+    <div class="hero__bg" role="img" aria-label="Fluorescence micrograph of a dense bacterial community"></div>
+    <div class="hero__scrim"></div>
+    <div class="wrap hero__inner">
+      <% if (c.eyebrow) { %><div class="eyebrow eyebrow-light"><%= c.eyebrow %></div><% } %>
+      <h1 class="hero__title"><%= c.title %></h1>
+      <p class="hero__sub"><%= c.subtitle %></p>
+      <div class="hero__meta">
+        <div><span class="dot"></span><%= c.date %></div>
+        <div><span class="dot"></span><%= c.venue %>, <%= c.venueCity %></div>
+        <div><span class="dot"></span><%= c.fee %></div>
+      </div>
+      <div class="hero__actions">
+        <a class="btn btn--gold" href="/register">Register &amp; submit an abstract →</a>
+        <a class="btn btn--ghost" href="#programme">See the programme</a>
+      </div>
+      <p class="hero__note">Abstract deadline <%= c.abstractDeadline %> · registration closes <%= c.registrationDeadline %></p>
+    </div>
+  </section>
+
+  <!-- ================= FACTS ================= -->
+  <section class="facts">
+    <div class="wrap">
+      <div class="facts__grid">
+        <div class="facts__cell">
+          <div class="facts__k">Date</div>
+          <div class="facts__v"><%= c.date %><small><%= c.timeRange %></small></div>
+        </div>
+        <div class="facts__cell">
+          <div class="facts__k">Venue</div>
+          <div class="facts__v"><%= c.venue %><small><%= c.venueCity %></small></div>
+        </div>
+        <div class="facts__cell">
+          <div class="facts__k">Registration</div>
+          <div class="facts__v"><%= c.fee %><small>Closes <%= c.registrationDeadline %></small></div>
+        </div>
+        <div class="facts__cell">
+          <div class="facts__k">Abstracts</div>
+          <div class="facts__v">Open<small>Deadline <%= c.abstractDeadline %></small></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ABOUT ================= -->
+  <section class="section" id="about">
+    <div class="wrap split">
+      <div>
+        <div class="eyebrow">About the conference</div>
+        <h2 class="section__title">Two ways of asking the same question</h2>
+        <div class="prose" style="margin-top:26px">
+          <% c.about.forEach(function (para) { %><p><%= para %></p><% }); %>
+        </div>
+
+        <div class="split--even" style="display:grid;gap:20px;margin-top:34px">
+          <figure class="figure figure--wide">
+            <img src="/img/culture-plate.jpg" alt="Bacterial colonies growing on an agar plate" loading="lazy">
+            <figcaption>Experimentally — culturing, gnotobiotic models, controlled human trials.</figcaption>
+          </figure>
+          <figure class="figure figure--wide">
+            <img src="/img/computational.jpg" alt="Clustered heatmap of microbial abundances with a dendrogram" loading="lazy">
+            <figcaption>Computationally — strain inference, statistical modelling, prediction.</figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <aside>
+        <div class="card card--tint">
+          <div class="card__title">Who should attend</div>
+          <ul>
+            <% c.audience.forEach(function (a) { %><li><%= a %></li><% }); %>
+          </ul>
+        </div>
+
+        <div class="card" style="margin-top:20px">
+          <div class="card__title">Format</div>
+          <p style="font-size:.98rem;color:var(--ink-soft)">
+            One day, one room. Three keynotes, invited talks, short talks selected from
+            submitted abstracts, two poster sessions and a closing panel. Discussion slots
+            are long on purpose.
+          </p>
+          <p style="font-size:.98rem;color:var(--ink-soft);margin-top:12px">
+            There are <strong>no proceedings</strong>. Work that has already been presented or
+            published elsewhere is welcome, and presenting here does not affect where you
+            publish.
+          </p>
+        </div>
+
+        <div class="card card--gold" style="margin-top:20px">
+          <div class="card__title">Registration</div>
+          <p style="font-size:.98rem"><%= c.feeNote %></p>
+          <a class="btn btn--navy btn--full" href="/register" style="margin-top:16px">Register now</a>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ================= SPEAKERS ================= -->
+  <section class="section section--paper" id="speakers">
+    <div class="wrap">
+      <div class="section__head">
+        <div class="eyebrow">Confirmed speakers</div>
+        <h2 class="section__title">Who is speaking, and about what</h2>
+        <p class="section__lede"><%= c.speakersNote %></p>
+      </div>
+
+      <% c.speakers.forEach(function (s) { %>
+        <article class="speaker">
+          <div class="speaker__portrait">
+            <img src="<%= s.image %>" alt="" loading="lazy" aria-hidden="true">
+            <span class="speaker__initials"><%= s.name.split(' ').map(function(w){return w[0];}).join('') %></span>
+          </div>
+          <div>
+            <h3 class="speaker__name"><%= s.name %></h3>
+            <div class="speaker__affil"><%= s.affiliation %><% if (s.role) { %> · <%= s.role %><% } %></div>
+            <p class="speaker__talk"><%= s.talk %><% if (s.provisional) { %> <span style="font-style:normal;font-family:var(--sans);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">— title provisional</span><% } %></p>
+            <p class="speaker__blurb"><%= s.blurb %></p>
+            <% if (s.links && s.links.length) { %>
+              <div class="speaker__links">
+                <% s.links.forEach(function (l, i) { %><% if (i) { %> · <% } %><a href="<%= l.href %>" rel="noopener noreferrer" target="_blank"><%= l.label %></a><% }); %>
+              </div>
+            <% } %>
+          </div>
+        </article>
+      <% }); %>
+    </div>
+  </section>
+
+  <!-- ================= PROGRAMME ================= -->
+  <section class="section" id="programme">
+    <div class="wrap split">
+      <div>
+        <div class="eyebrow">Programme at a glance</div>
+        <h2 class="section__title">One day, <%= c.timeRange.split('(')[0].trim() %></h2>
+        <p class="section__lede"><%= c.programNote %></p>
+
+        <div class="program" style="margin-top:30px">
+          <% c.program.forEach(function (row) { %>
+            <div class="program__row program__row--<%= row.kind %>">
+              <% if (row.kind !== 'session') { %><div class="program__time"><%= row.time %></div><% } %>
+              <div>
+                <div class="program__title"><%= row.title %><%
+                  if (row.kind === 'keynote') { %><span class="tag tag--keynote">Keynote</span><% }
+                  else if (row.kind === 'short') { %><span class="tag tag--short">Short talk</span><% }
+                  else if (row.kind === 'panel') { %><span class="tag tag--panel">Panel</span><% }
+                %></div>
+                <% if (row.who) { %><div class="program__who"><%= row.who %></div><% } %>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+
+      <aside>
+        <figure class="figure figure--tall">
+          <img src="/img/biofilm.jpg" alt="Multicolour fluorescence in situ hybridisation image of a mixed bacterial community" loading="lazy">
+          <figcaption>Taxonomically labelled cells in a mixed community.</figcaption>
+        </figure>
+
+        <div class="card" style="margin-top:20px">
+          <div class="card__title">Getting there</div>
+          <p style="font-size:.97rem;color:var(--ink-soft)"><%= c.venueNote %></p>
+          <p style="font-size:.97rem;margin-top:12px">
+            <a href="https://www.google.com/maps/search/?api=1&amp;query=<%= encodeURIComponent(c.mapQuery) %>" target="_blank" rel="noopener noreferrer">Open in Google&nbsp;Maps →</a>
+          </p>
+        </div>
+
+        <div class="card card--flat" style="margin-top:20px;background:var(--cream-2)">
+          <div class="card__title">Accessibility</div>
+          <p style="font-size:.97rem;color:var(--ink-soft)"><%= c.accessibilityNote %></p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ================= ABSTRACTS + KEY DATES ================= -->
+  <section class="section section--paper" id="abstracts">
+    <div class="wrap split--even" style="display:grid;gap:56px">
+      <div>
+        <div class="eyebrow">Abstract submission</div>
+        <h2 class="section__title">Present your work</h2>
+        <div class="prose" style="margin-top:22px">
+          <% c.abstractInfo.forEach(function (p) { %><p><%= p %></p><% }); %>
+        </div>
+        <div class="card card--flat" style="margin-top:24px;background:var(--cream)">
+          <div class="card__title">What we need</div>
+          <ul>
+            <% c.abstractRules.forEach(function (r) { %><li><%= r %></li><% }); %>
+          </ul>
+        </div>
+        <a class="btn btn--navy" href="/register" style="margin-top:24px">Submit an abstract →</a>
+      </div>
+
+      <div id="dates">
+        <div class="eyebrow">Key dates</div>
+        <h2 class="section__title">Deadlines</h2>
+        <ul class="dates" style="margin-top:24px">
+          <% c.keyDates.forEach(function (d) { %>
+            <li class="is-<%= d.state %>">
+              <span class="dates__label"><%= d.label %></span>
+              <span class="dates__value"><%= d.value %></span>
+            </li>
+          <% }); %>
+        </ul>
+        <div class="card card--tint" style="margin-top:26px">
+          <div class="card__title">Decisions</div>
+          <p style="font-size:.97rem">
+            All submitting authors hear back by <strong><%= c.notificationDate %></strong>,
+            whether the abstract is accepted as a short talk or as a poster.
+            Everyone who submits an abstract is offered a poster slot.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= COMMITTEE + CONTACT ================= -->
+  <section class="section" id="committee">
+    <div class="wrap split">
+      <div>
+        <div class="eyebrow">Organising committee</div>
+        <h2 class="section__title">Who is behind this</h2>
+        <div class="people" style="margin-top:28px">
+          <% c.committee.forEach(function (p) { %>
+            <div class="people__cell">
+              <div class="people__name"><%= p.name %></div>
+              <div class="people__affil"><%= p.affiliation %></div>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+
+      <aside id="contact">
+        <div class="card">
+          <div class="card__title">Contact</div>
+          <p style="font-size:.98rem;color:var(--ink-soft)"><%= c.contactNote %></p>
+          <p style="margin-top:16px">
+            <strong><%= c.contactName %></strong><br>
+            <a href="mailto:<%= c.contactEmail %>"><%= c.contactEmail %></a>
+          </p>
+          <hr class="rule" style="margin:20px 0">
+          <p style="font-size:.94rem;color:var(--muted)">
+            <%= c.venue %><br><%= c.venueCity %>
+          </p>
+        </div>
+        <div class="card card--flat" style="margin-top:20px;background:var(--cream-2)">
+          <div class="card__title">Your data</div>
+          <p style="font-size:.94rem;color:var(--ink-soft)">
+            Registration details are encrypted before they are written to disk and are
+            visible only to the organising committee. They are used to run this meeting
+            and nothing else, and are deleted after the conference on request.
+          </p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ================= CTA ================= -->
+  <section class="cta-band">
+    <div class="wrap cta-band__inner">
+      <div>
+        <h2>Registration is open</h2>
+        <p>Free of charge, two short steps, and you can attach your abstract as you go.</p>
+      </div>
+      <a class="btn btn--gold" href="/register">Register now →</a>
+    </div>
+  </section>
+
+</main>
+
+<%- include('partials/footer') %>

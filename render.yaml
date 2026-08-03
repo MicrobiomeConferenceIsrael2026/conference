@@ -1,0 +1,44 @@
+# Render.com blueprint.
+# Push this repo to GitHub, then in Render: New → Blueprint → pick the repo.
+# Render fills MASTER_KEY / SESSION_SECRET itself; you set ADMIN_PASSWORD_HASH
+# and the SMTP values in the dashboard (they are marked sync:false).
+
+services:
+  - type: web
+    name: microbiome-2026
+    runtime: node
+    plan: starter          # a persistent disk requires a paid plan; free tier has no disk
+    buildCommand: npm install --omit=dev
+    startCommand: node server.js
+    healthCheckPath: /healthz
+    disk:
+      name: conference-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TRUST_PROXY
+        value: "true"
+      - key: DATA_DIR
+        value: /var/data
+      - key: MASTER_KEY
+        generateValue: true      # generated once, then kept — do not change it
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: PUBLIC_URL
+        sync: false
+      - key: ADMIN_USER
+        sync: false
+      - key: ADMIN_PASSWORD_HASH
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: MAIL_FROM
+        sync: false

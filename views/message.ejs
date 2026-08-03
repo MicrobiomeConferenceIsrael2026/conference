@@ -1,0 +1,15 @@
+<%- include('partials/head', { pageTitle: heading }) %>
+<%- include('partials/header') %>
+
+<main id="main" class="message-page">
+  <div>
+    <div class="eyebrow"><%= c.shortTitle %></div>
+    <h1 style="margin-top:12px"><%= heading %></h1>
+    <p style="margin-left:auto;margin-right:auto"><%= body %></p>
+    <p style="margin-top:28px">
+      <a class="btn btn--navy" href="<%= backHref %>"><%= backLabel %></a>
+    </p>
+  </div>
+</main>
+
+<%- include('partials/footer') %>

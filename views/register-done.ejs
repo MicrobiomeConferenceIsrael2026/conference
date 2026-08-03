@@ -1,0 +1,57 @@
+<%- include('partials/head', { pageTitle: 'Registration confirmed' }) %>
+<%- include('partials/header') %>
+
+<main id="main">
+  <section class="page-head">
+    <div class="wrap-narrow" style="max-width:760px">
+      <div class="eyebrow eyebrow-light">Registration · step 3 of 3</div>
+      <h1>You are registered</h1>
+      <div class="steps">
+        <div class="steps__item is-done"><span class="steps__num">✓</span><span class="steps__label">Abstract</span></div>
+        <span class="steps__bar"></span>
+        <div class="steps__item is-done"><span class="steps__num">✓</span><span class="steps__label">Your details</span></div>
+        <span class="steps__bar"></span>
+        <div class="steps__item is-active"><span class="steps__num">3</span><span class="steps__label">Confirmation</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="form-shell">
+    <div class="form-card done">
+      <div class="done__mark" aria-hidden="true">✓</div>
+      <h1>Thank you — you are on the list</h1>
+      <p>
+        A confirmation e-mail is on its way. If it has not arrived within a few minutes,
+        check your spam folder and then write to
+        <a href="mailto:<%= c.contactEmail %>"><%= c.contactEmail %></a>.
+      </p>
+
+      <% if (ref) { %>
+        <div class="refbox">
+          <div class="refbox__k">Your reference</div>
+          <div class="refbox__v"><%= ref %></div>
+        </div>
+      <% } %>
+
+      <div class="summary">
+        <dl>
+          <dt>Date</dt><dd><%= c.date %>, <%= c.timeRange %></dd>
+          <dt>Venue</dt><dd><%= c.venue %>, <%= c.venueCity %></dd>
+          <dt>Fee</dt><dd><%= c.fee %></dd>
+          <% if (withAbstract) { %>
+            <dt>Abstract</dt><dd>Received — under review. Decisions by <%= c.notificationDate %>.</dd>
+          <% } else { %>
+            <dt>Abstract</dt><dd>None submitted. You can still send one until <%= c.abstractDeadline %>.</dd>
+          <% } %>
+        </dl>
+      </div>
+
+      <div class="form-actions" style="justify-content:center">
+        <a class="btn btn--outline" href="/#programme">See the programme</a>
+        <a class="btn btn--navy" href="/">Back to the conference</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include('partials/footer') %>
