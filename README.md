@@ -20,7 +20,7 @@ npm run smoke     # 29 checks against the built site
 ```
 
 `zsh: command not found: npm` means Node.js is not installed —
-[DEPLOY.md](DEPLOY.md) Part 0, about two minutes.
+[DEPLOY.md](DEPLOY.md) Appendix A, about two minutes.
 
 **To change anything on the site, edit `lib/content.js`.** Dates, venue,
 speakers and their talks, the program, key dates, abstract rules, the committee,
@@ -105,6 +105,6 @@ npm run smoke:server                # its own 74-check suite
 ```
 
 It needs a host that runs Node and keeps a disk (Render, Fly, your university —
-see DEPLOY.md Part 2). Nothing depends on it now, and deleting it would not
+see DEPLOY.md Appendix B). Nothing depends on it now, and deleting it would not
 affect the static site. It is there if you ever want registration data under
 your own key instead of Google's.
