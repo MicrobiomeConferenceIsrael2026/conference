@@ -21,6 +21,7 @@ fs.rmSync(process.env.DATA_DIR, { recursive: true, force: true });
 
 const app = require('../server');
 const config = require('../lib/config');
+const store = require('../lib/db');
 
 const BASE = `http://127.0.0.1:${config.port}`;
 let pass = 0;
@@ -141,8 +142,73 @@ function csrfFrom(html) {
   console.log(`\nSmoke test against ${BASE}  (node ${process.version})\n`);
 
   try {
+    /* ---------------- database driver conformance ----------------
+     * These run against whichever SQLite driver is actually installed on this
+     * machine. The two drivers have subtly different calling conventions, and
+     * a mistake in the adapter shows up far away — as sessions silently
+     * failing to save, which looks like random 403s. Catch it here instead. */
+    console.log(`Database driver: ${store.driver}`);
+    {
+      const tmp = path.join(process.env.DATA_DIR, 'driver-check.db');
+      fs.rmSync(tmp, { force: true });
+      const probe = require('../lib/sqlite').open(tmp);
+      probe.exec('CREATE TABLE t (a TEXT, b TEXT, c INTEGER)');
+
+      const three = probe.prepare('INSERT INTO t (a, b, c) VALUES (?, ?, ?)');
+      let info;
+      try {
+        info = three.run('one', 'two', 3);
+        ok('run() accepts multiple positional parameters', true);
+      } catch (err) {
+        ok('run() accepts multiple positional parameters', false, err.message);
+        info = { changes: 0, lastInsertRowid: 0 };
+      }
+      ok('run() reports changes as a number', info.changes === 1, `got ${info.changes}`);
+      ok(
+        'run() reports lastInsertRowid as a number',
+        typeof info.lastInsertRowid === 'number' && info.lastInsertRowid > 0,
+        `got ${typeof info.lastInsertRowid} ${info.lastInsertRowid}`
+      );
+
+      const named = probe.prepare('INSERT INTO t (a, b, c) VALUES (@a, @b, @c)');
+      try {
+        named.run({ a: 'x', b: null, c: 9 });
+        ok('run() accepts a named-parameter object (including nulls)', true);
+      } catch (err) {
+        ok('run() accepts a named-parameter object (including nulls)', false, err.message);
+      }
+
+      const row = probe.prepare('SELECT * FROM t WHERE a = ? AND c = ?').get('one', 3);
+      ok('get() accepts multiple positional parameters', row && row.b === 'two');
+      const rows = probe.prepare('SELECT * FROM t ORDER BY rowid LIMIT ?').all(5);
+      ok('all() binds parameters and returns every row', rows.length === 2, `got ${rows.length}`);
+
+      const upd = probe.prepare('UPDATE t SET b = ? WHERE a = ?').run('changed', 'one');
+      ok('run() binds UPDATE parameters in order', upd.changes === 1, `changed ${upd.changes}`);
+      ok(
+        'the UPDATE actually landed',
+        probe.prepare('SELECT b FROM t WHERE a = ?').get('one').b === 'changed'
+      );
+      probe.close();
+      fs.rmSync(tmp, { force: true });
+    }
+
+    /* ---------------- session persistence ----------------
+     * The failure mode this guards against: a session that cannot be written
+     * means every POST looks like a forged CSRF token. */
+    console.log('\nSessions');
+    {
+      const a = await request('GET', '/register');
+      const jar0 = a.cookies;
+      ok('a session cookie is issued', jar0.length > 0 && jar0.join(';').includes('mb26.sid'));
+      const tok0 = csrfFrom(a.body);
+      const b = await request('GET', '/register', { cookies: jar0 });
+      ok('the session survives a second request', csrfFrom(b.body) === tok0,
+        'CSRF token changed between requests — sessions are not persisting');
+    }
+
     /* ---------------- public pages ---------------- */
-    console.log('Public pages');
+    console.log('\nPublic pages');
     const home = await request('GET', '/');
     ok('GET /  →  200', home.status === 200, `got ${home.status}`);
     ok('home shows the conference title', home.body.includes('Microbiome'));
@@ -291,7 +357,6 @@ function csrfFrom(html) {
     const mode = fs.statSync(dbFile).mode & 0o777;
     ok(`database file permissions are owner-only (${mode.toString(8)})`, mode === 0o600, `got ${mode.toString(8)}`);
 
-    const store = require('../lib/db');
     const all = store.listRegistrations();
     ok('two registrations are stored', all.length === 2, `got ${all.length}`);
     ok('decryption round-trips the name', all.some((x) => x.full_name === 'Dana Cohen'));

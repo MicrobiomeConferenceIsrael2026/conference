@@ -488,7 +488,7 @@ if (require.main === module) {
     console.log(`\n  ${content.shortTitle}`);
     console.log(`  running at ${config.publicUrl}`);
     console.log(`  admin at   ${config.publicUrl}/admin/login  (user: ${config.admin.user})`);
-    console.log(`  database   ${store.DB_PATH}`);
+    console.log(`  database   ${store.DB_PATH}  (${store.driver})`);
     console.log(
       `  e-mail     ${config.smtp.enabled ? `SMTP ${config.smtp.host}` : 'NOT configured — confirmations saved to data/outbox/'}\n`
     );
