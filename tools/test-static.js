@@ -155,6 +155,33 @@ function get(urlPath) {
         abs.slice(0, 3).join(', ')
       );
     }
+    /* The phone-gutter bug: .wrap supplies the side padding, but a second class
+     * on the same element using the `padding` shorthand resets padding-inline
+     * to 0 and the text ends up flush against the screen edge. Easy to miss on
+     * a desktop browser, obvious and ugly on a phone. */
+    {
+      const fs2 = require('fs');
+      const css = fs2.readFileSync(path.join(ROOT, 'public', 'css', 'site.css'), 'utf8');
+      const offenders = [];
+      for (const [name, html] of [['index', idx.body], ['register', reg.body]]) {
+        for (const m of html.matchAll(/class="([^"]*\bwrap(?:-narrow)?\b[^"]*)"/g)) {
+          for (const cls of m[1].split(/\s+/)) {
+            if (!cls || cls === 'wrap' || cls === 'wrap-narrow') continue;
+            const rule = new RegExp(`\\.${cls.replace(/[-_]/g, '[-_]')}\\s*\\{([^}]*)\\}`, 'g');
+            let r;
+            while ((r = rule.exec(css))) {
+              if (/(^|;)\s*padding\s*:/.test(r[1])) offenders.push(`${name}: .${cls}`);
+            }
+          }
+        }
+      }
+      ok(
+        'no class alongside .wrap resets the side padding',
+        offenders.length === 0,
+        [...new Set(offenders)].join(', ') + ' — use padding-block, not padding'
+      );
+    }
+
     ok('nav points at register.html', /href="register\.html"/.test(idx.body));
     ok('register links back to index sections', /href="index\.html#speakers"/.test(reg.body));
     ok('no admin area is published', !/\/admin/.test(idx.body + reg.body));
