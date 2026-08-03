@@ -1,7 +1,10 @@
 # Getting this online
 
-Three parts, in order: **install Node**, **put it in git**, **pick a host**.
-Skip to whichever part you need.
+The site is static and lives on GitHub Pages; registration is a Google Form.
+Parts 0–3 are the whole setup, start to finish, roughly half an hour.
+
+Part 4 covers the alternative — running the self-hosted Node version instead —
+and is only relevant if you decide Google should not hold the registration data.
 
 ---
 
@@ -85,11 +88,11 @@ to the committee. Three ways, in increasing reach.
 ### Your own phone, over Wi-Fi
 
 ```bash
-npm start
+npm run preview
 ```
 
-The startup banner now prints a `same Wi-Fi` line — something like
-`http://192.168.1.24:3000`. Type that into your phone's browser. Your phone and
+The banner prints a `same Wi-Fi` line — something like
+`http://192.168.1.24:8080`. Type that into your phone's browser. Your phone and
 your Mac have to be on the same network, and macOS may ask you to allow
 incoming connections the first time.
 
@@ -102,8 +105,8 @@ building.
 npm run share
 ```
 
-This starts the server and puts a Cloudflare tunnel in front of it, giving you a
-real HTTPS address like `https://weekly-tiger-forest.trycloudflare.com`. Send it
+This rebuilds `docs/`, serves it exactly as GitHub Pages will, and puts a
+Cloudflare tunnel in front of it, giving you a real HTTPS address like `https://weekly-tiger-forest.trycloudflare.com`. Send it
 to anyone, anywhere. It works on phones, it works through firewalls, and there
 is no signup.
 
@@ -120,16 +123,12 @@ What to know before you send the link:
 
 - **It only lives while the command runs.** Close the terminal, shut the laptop,
   or lose Wi-Fi and the link dies. Every run generates a different address.
-- **It is genuinely public.** Anyone with the URL can register, and `/admin/login`
-  is reachable too. Rate limiting and the password still apply, but treat
-  anything submitted as test data and clear it afterwards.
-- **Registrations are real** and land in your local `data/registrations.db`.
-  Delete the test ones from the admin page when you're done, or stop the server
-  and delete `data/` to start clean.
-- Confirmation emails still go to `data/outbox/` unless you have configured SMTP.
+- **It is genuinely public** — anyone with the URL can open it.
+- **The form is live.** Anything submitted through it lands in your real
+  responses spreadsheet. Delete test rows afterwards.
 
-This is the right tool for "have a look and tell me what you think". It is not
-a way to run the actual conference — for that you need Part 2.
+This is the right tool for "have a look and tell me what you think" before the
+site is published.
 
 ---
 
@@ -166,41 +165,117 @@ key is unreadable.
 
 ---
 
-## Part 2 — Pick a host
+## Part 2 — Create the Google Form
 
-You need somewhere that runs Node **and gives you a disk that survives
-restarts**, because the registrations live in a SQLite file. That rules out
-GitHub Pages, Netlify and Vercel — they only serve static files or short-lived
-functions.
+The form is the registration system: it collects the answers, emails each
+person a copy as their confirmation, and appends a row to a spreadsheet you own.
 
-### Why GitHub Pages can't do this
+### Build it with the script (5 minutes)
 
-GitHub Pages serves files. It runs no code of yours, has no database, and has
-nowhere to put anything a visitor submits. That isn't a limit you can engineer
-around — a registration form needs *something* on the other end to receive the
-submission, and Pages has no other end.
+Rather than clicking twelve questions into existence, run the script in
+`tools/create-google-form.gs`:
 
-So "the same site, but on GitHub Pages" isn't a smaller version of this project;
-it's a different architecture. The realistic variants:
+1. Open <https://script.google.com> → **New project**
+2. Delete the sample code, paste in the whole of `tools/create-google-form.gs`
+3. Press **Run** ( ▷ ). Approve the permission prompt — it is asking to create a
+   form and a spreadsheet in *your* Drive.
+4. Open **Execution log**. It prints the two URLs you need.
 
-| Approach | Effort | Where registrations live | Honest assessment |
-|---|---|---|---|
-| **Pages + Google Form** | ~1 hour | Google's servers | Fine, and genuinely secure — but it's Google's security, not yours. No encryption under your key, the form looks like a Google form, and abstracts land in a spreadsheet. |
-| **Pages + Formspree / Netlify Forms** | ~1 hour | The vendor | Same trade. Free tiers cap out around 50–100 submissions/month, which a conference will exceed. |
-| **Cloudflare Pages + Workers + D1** | ~1 day | Cloudflare's database, encrypted with your key | The real answer if you want free, git-push deploys, and the current security model. Not GitHub Pages, but it deploys *from* your GitHub repo the same way. Free tier covers a conference comfortably. |
-| **Keep what you have** | done | Your server, your key | Already built and tested. Needs a host that runs Node — Render, Fly, or your university. |
+The script creates every question, sets the email validation and the 300-word
+limit, and — the fiddly part — wires the branch so that answering "No" to *are
+you submitting an abstract?* skips the abstract questions entirely.
 
-The thing you'd give up in the first two rows is the property that took the most
-care to build: personal data and unpublished abstracts encrypted at rest with a
-key that only you hold. On Google Forms, Google can read every abstract. That
-may be perfectly acceptable to you — plenty of conferences run on Google Forms —
-but it's the actual trade, so it's worth naming rather than discovering later.
+### Three settings you must set by hand
 
-If free-and-git-deployed is the requirement, the Cloudflare row is the one to
-pick. Roughly a day of work: the pages and CSS carry over unchanged, the Express
-routes become Worker handlers, SQLite becomes D1 (same SQL), and the encryption
-and session code port almost as-is since they're plain Web Crypto and cookies.
-Say the word and I'll do it.
+Google's API cannot reliably set these, so open the form → **Settings**:
+
+1. **Responses → Collect email addresses → Responder input**
+2. **Responses → Send responders a copy of their response → Always**
+   *This is the confirmation email.* Without it, nobody hears anything back.
+3. **Responses → Restrict to users in your organization → OFF**
+   Leave this on and only Bar-Ilan accounts can register. Everyone else sees a
+   permission error, and you will not find out until someone complains.
+
+Optional but useful: **Get email notifications for new responses**.
+
+### Connect it to the site
+
+The script printed a `formUrl` and an `embedUrl`. Put them in
+`lib/content.js`:
+
+```js
+googleForm: {
+  formUrl:  'https://docs.google.com/forms/d/e/1FAIpQLS…/viewform',
+  embedUrl: 'https://docs.google.com/forms/d/e/1FAIpQLS…/viewform?embedded=true',
+  embedHeight: 1400,
+},
+```
+
+Then:
+
+```bash
+npm run build
+npm run smoke     # confirms the form is embedded and points where you think
+```
+
+If `embedHeight` is wrong the form gets its own scrollbar inside the page, which
+looks bad. Open `register.html`, see how tall the form actually is, adjust.
+
+### Test it properly before announcing
+
+Register yourself. Check that the row appears in the spreadsheet, that the
+confirmation email arrives, and that answering "No" to the abstract question
+really does skip those pages. Then delete your test row.
+
+---
+
+## Part 3 — Publish on GitHub Pages
+
+```bash
+git add .
+git commit -m "Conference site"
+git push
+```
+
+Then in the repository: **Settings → Pages → Build and deployment → Source:
+GitHub Actions**. That is the only click required.
+
+`.github/workflows/pages.yml` runs `npm run build` on every push to `main` and
+publishes `docs/`. If the build fails, the run fails and the old site stays up —
+it will not publish something broken.
+
+Your address is `https://YOUR-USERNAME.github.io/REPO-NAME/`. The site is built
+with relative paths, so it works at that sub-path as well as at a domain root;
+`npm run smoke` checks this specifically, because absolute paths are the usual
+way a Pages site breaks.
+
+### A custom domain
+
+Settings → Pages → Custom domain. Add the DNS records GitHub shows you, tick
+**Enforce HTTPS**, and create a file called `CNAME` in `docs/` containing just
+the domain. Add it to `tools/build-static.js` so it survives rebuilds — `docs/`
+is wiped on every build.
+
+### Updating the site later
+
+Edit `lib/content.js`, then:
+
+```bash
+npm run build && npm run smoke
+git commit -am "Add fourth speaker"
+git push
+```
+
+Live in about a minute. You never touch `docs/` by hand.
+
+---
+
+## Part 4 — The alternative: self-host the Node version
+
+Everything below applies only if you abandon Google Forms and run `server.js`
+instead — registration under your own encryption key, your own admin dashboard,
+your own confirmation emails. It needs a host that runs Node **and gives you a
+disk that survives restarts**, because registrations live in a SQLite file.
 
 Set `NODE_ENV=production` on any real host. It switches on HSTS and
 HTTPS-only cookies. Do **not** set it if you are on plain `http://`, or you
@@ -343,30 +418,32 @@ closest region to Israel; `cdg` and `ams` also work).
 
 ## After it is live — the checklist
 
-- [ ] `/healthz` returns `{"ok":true,...}`
-- [ ] The site loads over **https**, not http
-- [ ] You can sign in at `/admin/login`
-- [ ] A test registration arrives in the admin table
-- [ ] The confirmation email actually lands (check spam)
-- [ ] `MASTER_KEY` is in a password manager
-- [ ] `data/` is backed up somewhere automatic
-- [ ] `PUBLIC_URL` matches the real address
-- [ ] Delete your test registration
+- [ ] The site loads at your Pages URL, over **https**
+- [ ] Every image appears (a blank hero means an absolute-path problem)
+- [ ] It looks right on a phone
+- [ ] The registration form loads embedded, not just as a link
+- [ ] A test registration reaches the responses spreadsheet
+- [ ] The confirmation email arrives — check spam
+- [ ] Answering "No" to the abstract question skips the abstract pages
+- [ ] The form is **not** restricted to your organization
+- [ ] The committee can open the responses spreadsheet
+- [ ] Delete your test row
 
 ---
 
 ## Changing things later
 
 The whole conference — text, dates, speakers, program, committee — is in
-`lib/content.js`. Edit it, then:
+`lib/content.js`.
 
-- **local:** `Ctrl-C`, `npm start`
-- **Render / Fly:** `git push` (they redeploy automatically)
-- **your own server:** `git pull && systemctl restart microbiome`
-- **Docker:** `git pull && docker compose up -d --build`
+```bash
+npm run build && npm run smoke
+git commit -am "…" && git push
+```
 
-Run `npm run smoke` after any change you are unsure about — 64 checks, about two
-seconds, and it tells you if you broke something.
+Pages republishes in about a minute.
 
-Upgrading Node or dependencies never touches `data/`, so registrations are safe
-across redeploys as long as the volume is mounted.
+To change a **question on the form**, edit the form in Google directly. The URLs
+do not change, so the site needs no rebuild. Changing questions after people have
+started responding adds columns to the spreadsheet rather than rewriting old
+rows — do it early if you are going to do it.

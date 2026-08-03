@@ -9,12 +9,15 @@
     "node": ">=18"
   },
   "scripts": {
+    "build": "node tools/build-static.js",
+    "preview": "node tools/build-static.js && node tools/preview.js",
+    "share": "node tools/share.js",
+    "smoke": "node tools/test-static.js",
     "start": "node server.js",
     "dev": "node server.js",
-    "share": "node tools/share.js",
+    "smoke:server": "node tools/smoke-test.js",
     "init-secrets": "node tools/init-secrets.js",
     "keys": "node tools/print-env.js",
-    "smoke": "node tools/smoke-test.js",
     "docker:build": "docker build -t microbiome-2026 .",
     "docker:run": "docker compose up -d"
   },
