@@ -38,7 +38,7 @@ function ok(name, cond, extra) {
   }
 }
 
-function request(method, url, { body, cookies = [], redirect = false } = {}) {
+function rawRequest(method, url, { body, cookies = [] } = {}) {
   return new Promise((resolve, reject) => {
     const u = new URL(url, BASE);
     const data = body ? new URLSearchParams(body).toString() : null;
@@ -48,8 +48,12 @@ function request(method, url, { body, cookies = [], redirect = false } = {}) {
         hostname: u.hostname,
         port: u.port,
         path: u.pathname + u.search,
+        // One fresh socket per request. Node keeps sockets alive by default,
+        // which races with the server closing idle ones and shows up as a
+        // spurious ECONNRESET — a test artefact, not a fault in the site.
+        agent: false,
         headers: Object.assign(
-          { 'User-Agent': 'smoke-test' },
+          { 'User-Agent': 'smoke-test', Connection: 'close' },
           cookies.length ? { Cookie: cookies.join('; ') } : {},
           data
             ? {
@@ -76,9 +80,32 @@ function request(method, url, { body, cookies = [], redirect = false } = {}) {
       }
     );
     req.on('error', reject);
+    req.setTimeout(15000, () => req.destroy(new Error('request timed out')));
     if (data) req.write(data);
     req.end();
   });
+}
+
+const TRANSIENT = new Set(['ECONNRESET', 'ECONNREFUSED', 'EPIPE', 'EAGAIN']);
+
+/**
+ * Same as rawRequest, but retries transient socket errors.
+ * Only GET/HEAD are retried — replaying a POST could register someone twice.
+ */
+async function request(method, url, options = {}) {
+  const safe = method === 'GET' || method === 'HEAD';
+  const attempts = safe ? 3 : 1;
+  let lastErr;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await rawRequest(method, url, options);
+    } catch (err) {
+      lastErr = err;
+      if (!safe || !TRANSIENT.has(err.code)) throw err;
+      await new Promise((r) => setTimeout(r, 60 * (i + 1)));
+    }
+  }
+  throw lastErr;
 }
 
 function csrfFrom(html) {
@@ -88,8 +115,30 @@ function csrfFrom(html) {
 
 (async function run() {
   const server = app.listen(config.port);
+
+  // If the server itself ever errors, say so plainly rather than letting it
+  // surface as an unexplained socket reset on the client side.
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(
+        `\n  Port ${config.port} is already in use — is the site already running?\n` +
+          `  Stop it, or run:  SMOKE_PORT=4123 npm run smoke\n`
+      );
+      process.exit(1);
+    }
+    console.error('\n  Server error:', err);
+  });
+  server.on('clientError', (err, socket) => {
+    console.error('  client error:', err.code || err.message);
+    if (!socket.destroyed) socket.destroy();
+  });
+  process.on('uncaughtException', (err) => {
+    console.error('\n  Uncaught exception in the server:\n', err);
+    process.exit(1);
+  });
+
   await new Promise((r) => server.once('listening', r));
-  console.log(`\nSmoke test against ${BASE}\n`);
+  console.log(`\nSmoke test against ${BASE}  (node ${process.version})\n`);
 
   try {
     /* ---------------- public pages ---------------- */
