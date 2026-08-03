@@ -90,7 +90,7 @@ git commit -m "Conference site"
 ```
 
 Then create an empty repository on GitHub — **private**, unless you want the
-world reading your draft programme — and push:
+world reading your draft program — and push:
 
 ```bash
 git remote add origin https://github.com/YOUR-USERNAME/microbiome-2026.git
@@ -262,7 +262,7 @@ closest region to Israel; `cdg` and `ams` also work).
 - [ ] The site loads over **https**, not http
 - [ ] You can sign in at `/admin/login`
 - [ ] A test registration arrives in the admin table
-- [ ] The confirmation e-mail actually lands (check spam)
+- [ ] The confirmation email actually lands (check spam)
 - [ ] `MASTER_KEY` is in a password manager
 - [ ] `data/` is backed up somewhere automatic
 - [ ] `PUBLIC_URL` matches the real address
@@ -272,7 +272,7 @@ closest region to Israel; `cdg` and `ams` also work).
 
 ## Changing things later
 
-The whole conference — text, dates, speakers, programme, committee — is in
+The whole conference — text, dates, speakers, program, committee — is in
 `lib/content.js`. Edit it, then:
 
 - **local:** `Ctrl-C`, `npm start`

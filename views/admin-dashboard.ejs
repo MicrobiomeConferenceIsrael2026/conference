@@ -18,7 +18,7 @@
     <% if (!smtpConfigured) { %>
       <div class="alert alert--warn" style="margin-top:18px">
         <strong>SMTP is not configured.</strong> Registrations are saved normally, but
-        confirmation e-mails are written to <code>data/outbox/</code> instead of being sent.
+        confirmation emails are written to <code>data/outbox/</code> instead of being sent.
         Add <code>SMTP_HOST</code> and friends to <code>.env</code> and restart to switch mail on.
       </div>
     <% } %>
@@ -31,7 +31,7 @@
     </div>
 
     <form class="toolbar" method="get" action="/admin">
-      <input type="text" name="q" value="<%= q %>" placeholder="Search name, e-mail, institution, title…">
+      <input type="text" name="q" value="<%= q %>" placeholder="Search name, email, institution, title…">
       <input type="hidden" name="filter" value="<%= filter %>">
       <button class="btn btn--outline btn--sm" type="submit">Search</button>
       <div class="chips">
@@ -53,7 +53,7 @@
       <table class="data">
         <thead>
           <tr>
-            <th>Ref</th><th>Name</th><th>E-mail</th><th>Affiliation</th>
+            <th>Ref</th><th>Name</th><th>Email</th><th>Affiliation</th>
             <th>Role</th><th>Abstract</th><th>Status</th><th>Mail</th><th>Registered</th>
           </tr>
         </thead>

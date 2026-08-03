@@ -16,7 +16,7 @@
         </div>
         <div class="hero__actions">
           <a class="btn btn--navy" href="/register">Register</a>
-          <a class="btn btn--ghost" href="#programme">Programme</a>
+          <a class="btn btn--ghost" href="#program">Program</a>
         </div>
         <p class="hero__note">Abstracts close <%= c.abstractDeadline %> · registration closes <%= c.registrationDeadline %></p>
       </div>
@@ -55,16 +55,6 @@
     <div class="wrap split">
       <div>
         <p style="font-size:1.15rem;line-height:1.55;max-width:56ch;margin:0"><%= c.about %></p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:30px">
-          <figure class="figure figure--wide">
-            <img src="/img/culture-plate.jpg" alt="Bacterial colonies on an agar plate" loading="lazy">
-            <figcaption>Experimentally</figcaption>
-          </figure>
-          <figure class="figure figure--wide">
-            <img src="/img/computational.jpg" alt="Clustered heatmap of microbial abundances" loading="lazy">
-            <figcaption>Computationally</figcaption>
-          </figure>
-        </div>
       </div>
 
       <aside>
@@ -87,15 +77,15 @@
         <p class="section__lede"><%= c.speakersNote %></p>
       </div>
 
-      <% c.speakers.forEach(function (s) { %>
-        <article class="speaker">
-          <div class="speaker__portrait">
-            <img src="<%= s.image %>" alt="" loading="lazy" aria-hidden="true">
-            <span class="speaker__initials"><%= s.name.split(' ').map(function(w){return w[0];}).join('') %></span>
-          </div>
-          <div>
+      <div class="speakers">
+        <% c.speakers.forEach(function (s) { %>
+          <article class="speaker">
+            <div class="speaker__portrait">
+              <img src="<%= s.image %>" alt="" loading="lazy" aria-hidden="true">
+              <span class="speaker__initials"><%= s.name.split(' ').map(function(w){return w[0];}).join('') %></span>
+            </div>
             <h3 class="speaker__name"><%= s.name %></h3>
-            <div class="speaker__affil"><%= s.affiliation %><% if (s.role) { %> · <%= s.role %><% } %></div>
+            <div class="speaker__affil"><%= s.affiliation %></div>
             <p class="speaker__talk"><%= s.talk %></p>
             <p class="speaker__blurb"><%= s.blurb %></p>
             <% if (s.links && s.links.length) { %>
@@ -103,18 +93,18 @@
                 <% s.links.forEach(function (l, i) { %><% if (i) { %> · <% } %><a href="<%= l.href %>" rel="noopener noreferrer" target="_blank"><%= l.label %></a><% }); %>
               </div>
             <% } %>
-          </div>
-        </article>
-      <% }); %>
+          </article>
+        <% }); %>
+      </div>
     </div>
   </section>
 
-  <!-- ================= PROGRAMME ================= -->
-  <section class="section" id="programme">
+  <!-- ================= PROGRAM ================= -->
+  <section class="section" id="program">
     <div class="wrap split">
       <div>
         <div class="section__head" style="margin-bottom:20px">
-          <h2 class="section__title">Programme</h2>
+          <h2 class="section__title">Program</h2>
           <p class="section__lede"><%= c.programNote %></p>
         </div>
 
@@ -137,7 +127,7 @@
 
       <aside>
         <figure class="figure figure--tall">
-          <img src="/img/biofilm.jpg" alt="Fluorescence in situ hybridisation of a mixed bacterial community" loading="lazy">
+          <img src="/img/biofilm.jpg" alt="Fluorescence in situ hybridization of a mixed bacterial community" loading="lazy">
         </figure>
         <div class="card" style="margin-top:16px">
           <div class="card__title">Getting there</div>
@@ -153,7 +143,7 @@
 
   <!-- ================= ABSTRACTS + KEY DATES ================= -->
   <section class="section section--paper" id="abstracts">
-    <div class="wrap split--even" style="display:grid;gap:44px">
+    <div class="wrap two-col two-col--divided">
       <div>
         <h2 class="section__title">Abstracts</h2>
         <p style="margin-top:12px;color:var(--ink-soft)"><%= c.abstractInfo %></p>
@@ -181,7 +171,7 @@
   <section class="section" id="committee">
     <div class="wrap split">
       <div>
-        <h2 class="section__title">Organising committee</h2>
+        <h2 class="section__title">Organizing committee</h2>
         <div class="people" style="margin-top:18px">
           <% c.committee.forEach(function (p) { %>
             <div class="people__cell">

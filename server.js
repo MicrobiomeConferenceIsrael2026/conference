@@ -165,7 +165,7 @@ function validateDetails(body, wantsAbstract) {
   };
 
   if (d.full_name.length < 2) errors.full_name = 'Please enter your full name.';
-  if (!EMAIL_RE.test(d.email)) errors.email = 'Please enter a valid e-mail address.';
+  if (!EMAIL_RE.test(d.email)) errors.email = 'Please enter a valid email address.';
   if (d.affiliation.length < 2) errors.affiliation = 'Please enter your institution or company.';
   if (!content.roles.includes(d.role)) errors.role = 'Please choose your role.';
 
@@ -490,7 +490,7 @@ if (require.main === module) {
     console.log(`  admin at   ${config.publicUrl}/admin/login  (user: ${config.admin.user})`);
     console.log(`  database   ${store.DB_PATH}  (${store.driver})`);
     console.log(
-      `  e-mail     ${config.smtp.enabled ? `SMTP ${config.smtp.host}` : 'NOT configured — confirmations saved to data/outbox/'}\n`
+      `  email     ${config.smtp.enabled ? `SMTP ${config.smtp.host}` : 'NOT configured — confirmations saved to data/outbox/'}\n`
     );
   });
 }

@@ -40,7 +40,7 @@ const env = `# =================================================================
 #  ${'Microbiome 2026'} — environment
 #  Generated ${new Date().toISOString()}
 #
-#  KEEP THIS FILE SECRET. It is in .gitignore. Never commit it, never e-mail it.
+#  KEEP THIS FILE SECRET. It is in .gitignore. Never commit it, never email it.
 #  If MASTER_KEY is lost or changed, every stored registration becomes
 #  permanently unreadable. Back it up somewhere safe (a password manager).
 # =============================================================================
@@ -57,7 +57,7 @@ MASTER_KEY=${crypto.randomBytes(32).toString('hex')}
 # Signs the session cookie.
 SESSION_SECRET=${crypto.randomBytes(48).toString('base64url')}
 
-# --- organiser login ---------------------------------------------------------
+# --- organizer login ---------------------------------------------------------
 ADMIN_USER=${adminUser}
 # bcrypt hash of the password below. The plaintext is NOT stored anywhere.
 ADMIN_PASSWORD_HASH=${hash}
@@ -65,7 +65,7 @@ ADMIN_PASSWORD_HASH=${hash}
 #   node -e "console.log(require('bcryptjs').hashSync('NEW PASSWORD', 12))"
 # and paste it above. (Or set ADMIN_PASSWORD=... in plaintext — less good.)
 
-# --- e-mail ------------------------------------------------------------------
+# --- email ------------------------------------------------------------------
 # Leave SMTP_HOST empty to run without mail: confirmations are then written to
 # data/outbox/ as .eml files and registration still works.
 SMTP_HOST=
@@ -74,7 +74,7 @@ SMTP_SECURE=false
 SMTP_USER=
 SMTP_PASS=
 MAIL_FROM="Microbiome 2026 <no-reply@example.ac.il>"
-# Optional: blind-copy every confirmation to the organisers.
+# Optional: blind-copy every confirmation to the organizers.
 MAIL_BCC=
 `;
 
@@ -84,7 +84,7 @@ console.log(`
   Wrote ${path.relative(process.cwd(), ENV)} (chmod 600).
 
   ------------------------------------------------------------------
-   Organiser login
+   Organizer login
      URL       ${'http://localhost:3000/admin/login'}
      username  ${adminUser}
      password  ${adminPassword}

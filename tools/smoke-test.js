@@ -215,7 +215,7 @@ function csrfFrom(html) {
     ok('home lists all three speakers',
       ['Tal Korem', 'Jotham Suez', 'Inga Peter'].every((n) => home.body.includes(n)));
     ok('home shows the venue', home.body.includes('Azrieli Faculty of Medicine'));
-    ok('home has a programme', home.body.includes('Programme'));
+    ok('home has a program', home.body.includes('Program'));
     ok('home has key dates', home.body.includes('Key dates'));
     ok('home has the committee', home.body.includes('Omry Koren') && home.body.includes('David Zeevi'));
     ok('no unrendered EJS left in the page', !home.body.includes('<%'));
@@ -257,7 +257,7 @@ function csrfFrom(html) {
       'and that antibiotic exposure in the first year selectively removes the persistent ' +
       'lineages while leaving transient ones intact. A simple growth-rate model fitted to ' +
       'coverage patterns predicts which strains will be lost, and we validate the prediction ' +
-      'in gnotobiotic mice colonised with a defined community.';
+      'in gnotobiotic mice colonized with a defined community.';
 
     r = await request('POST', '/register/details', {
       cookies: jar,
@@ -319,7 +319,7 @@ function csrfFrom(html) {
       body: { _csrf: token, full_name: 'X', email: 'not-an-email', affiliation: '', role: '' },
     });
     ok('bad input is rejected with 422', r.status === 422, `got ${r.status}`);
-    ok('the e-mail error is shown', r.body.includes('valid e-mail'));
+    ok('the email error is shown', r.body.includes('valid email'));
     ok('the form is redisplayed, not lost', r.body.includes('name="full_name"'));
 
     r = await request('GET', '/register/details', { cookies: jar });
@@ -334,7 +334,7 @@ function csrfFrom(html) {
         role: 'Faculty member / PI',
       },
     });
-    ok('duplicate e-mail is refused', r.status === 422 && r.body.includes('already registered'));
+    ok('duplicate email is refused', r.status === 422 && r.body.includes('already registered'));
 
     r = await request('POST', '/register/details', {
       cookies: jar,
@@ -351,7 +351,7 @@ function csrfFrom(html) {
       (fs.existsSync(walFile) ? fs.readFileSync(walFile).toString('binary') : '');
     ok('the database file exists', fs.existsSync(dbFile));
     ok('participant name is NOT readable in the raw file', !raw.includes('Dana Cohen'));
-    ok('e-mail is NOT readable in the raw file', !raw.includes('dana.cohen@example.ac.il'));
+    ok('email is NOT readable in the raw file', !raw.includes('dana.cohen@example.ac.il'));
     ok('affiliation is NOT readable in the raw file', !raw.includes('Bar-Ilan University'));
     ok('abstract text is NOT readable in the raw file', !raw.includes('gnotobiotic mice'));
     const mode = fs.statSync(dbFile).mode & 0o777;
@@ -362,8 +362,8 @@ function csrfFrom(html) {
     ok('decryption round-trips the name', all.some((x) => x.full_name === 'Dana Cohen'));
     ok('decryption round-trips the abstract', all.some((x) => x.abstract_body.includes('gnotobiotic mice')));
 
-    /* ---------------- confirmation e-mail ---------------- */
-    console.log('\nConfirmation e-mail');
+    /* ---------------- confirmation email ---------------- */
+    console.log('\nConfirmation email');
     const outbox = path.join(process.env.DATA_DIR, 'outbox');
     if (config.smtp.enabled) {
       ok('SMTP configured — mail marked sent', all.every((x) => x.mail_status === 'sent'));
@@ -372,8 +372,8 @@ function csrfFrom(html) {
       ok('confirmations were produced (SMTP off → written to data/outbox)', files.length === 2, `${files.length} files`);
       if (files.length) {
         const eml = fs.readFileSync(path.join(outbox, files[0]), 'utf8');
-        ok('the e-mail contains the reference number', /MB26-[A-Z0-9]+/.test(eml));
-        ok('the e-mail contains the venue', eml.includes('Azrieli'));
+        ok('the email contains the reference number', /MB26-[A-Z0-9]+/.test(eml));
+        ok('the email contains the venue', eml.includes('Azrieli'));
       }
     }
 

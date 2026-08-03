@@ -50,7 +50,7 @@ MAIL_FROM="Microbiome 2026 <no-reply@example.ac.il>"
 MAIL_BCC=
 
 # ---------------------------------------------------------------------------
-# Organiser login
+# Organizer login
 #   username  ${user}
 #   password  ${password}
 # The password is not stored anywhere in plaintext. Write it down now.

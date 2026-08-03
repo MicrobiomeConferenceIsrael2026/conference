@@ -1,8 +1,8 @@
-# The Microbiome, Experimentally and Computationally — conference site
+# Microbiome 2026 — conference site
 
 A complete, self-contained conference website: public pages, a two-step
-registration flow with optional abstract submission, confirmation e-mail,
-an encrypted SQLite database, and a password-protected organiser area.
+registration flow with optional abstract submission, confirmation email,
+an encrypted SQLite database, and a password-protected organizer area.
 
 No build step, no framework, no external services. Node + Express + EJS.
 
@@ -23,7 +23,7 @@ npm start
 
 Then open <http://localhost:3000>.
 
-`init-secrets` prints an organiser username and password **once** — write them
+`init-secrets` prints an organizer username and password **once** — write them
 down. To choose your own:
 
 ```bash
@@ -33,8 +33,9 @@ npm run init-secrets -- --user omry --password 'a long passphrase'
 To check everything still works after you change something:
 
 ```bash
-npm run smoke            # 64 checks: pages, both registration paths,
-                         # validation, encryption, admin access control
+npm run smoke            # 74 checks: database driver, sessions, pages,
+                         # both registration paths, validation, encryption,
+                         # admin access control
 ```
 
 ---
@@ -42,18 +43,17 @@ npm run smoke            # 64 checks: pages, both registration paths,
 ## 2. Where to edit the conference
 
 **Everything the public site says lives in one file: `lib/content.js`.**
-Dates, venue, speakers and their talk descriptions, the programme, key dates,
+Dates, venue, speakers and their talk descriptions, the program, key dates,
 abstract rules, the committee, the contact address. Edit it, save, restart.
 
 Things marked `// TODO` in that file need your attention:
 
 | What | Currently |
 |---|---|
-| Contact e-mail | `microbiome2026@example.ac.il` — **replace this** |
+| Contact email | `microbiome2026@example.ac.il` — **replace this** |
 | Contact name | "Conference Secretariat" |
-| Eyebrow badge | "Part of Mind-IL 2026" — delete if this is not a Mind-IL event |
 | Speaker talk titles and descriptions | **Drafted by me** from each speaker's published work. Confirm with them before publishing. |
-| Programme | A plausible draft day. Invited-talk slots say "To be announced". |
+| Program | A plausible draft day. Invited-talk slots say "To be announced". |
 | Key dates | Abstracts 6 Sep, decisions 20 Sep, registration closes 11 Oct |
 
 Note: the third speaker is listed as **Inga Peter** (Icahn School of Medicine at
@@ -69,19 +69,19 @@ Swap in real photographs by overwriting the files with the same names.
 ## 3. Registration flow
 
 1. **`/register`** — "Would you like to submit an abstract?" Yes / No.
-2. **`/register/details`** — name, e-mail, affiliation, role, country, dietary
+2. **`/register/details`** — name, email, affiliation, role, country, dietary
    and accessibility needs, mailing-list consent. If they said yes, the abstract
    fields (title, authors, 300-word text, talk-or-poster preference) appear here
    too, with a live word counter.
-3. **`/register/done`** — reference number, summary, and the confirmation e-mail
+3. **`/register/done`** — reference number, summary, and the confirmation email
    is sent.
 
-There is no payment step. Duplicate e-mail addresses are refused. Invalid input
+There is no payment step. Duplicate email addresses are refused. Invalid input
 re-renders the form with the values kept and the problems marked.
 
 ---
 
-## 4. E-mail
+## 4. Email
 
 Add your SMTP details to `.env` and restart:
 
@@ -92,7 +92,7 @@ SMTP_SECURE=false
 SMTP_USER=your.address@gmail.com
 SMTP_PASS=an-app-specific-password
 MAIL_FROM="Microbiome 2026 <your.address@gmail.com>"
-MAIL_BCC=organisers@example.ac.il     # optional copy of every confirmation
+MAIL_BCC=organizers@example.ac.il     # optional copy of every confirmation
 ```
 
 **If `SMTP_HOST` is empty the site still works.** Each confirmation is written
@@ -108,9 +108,9 @@ an app-specific password, not your account password.
 
 | Concern | How it is handled |
 |---|---|
-| Personal data at rest | Every personal field — name, e-mail, affiliation, country, dietary notes, abstract text — is encrypted with **AES-256-GCM** before it is written. Keys are derived from `MASTER_KEY` via HKDF. A stolen `registrations.db` is unreadable noise. The smoke test asserts this by grepping the raw file. |
-| Finding people by e-mail | A **blind index** (HMAC-SHA256) enforces uniqueness without storing the address in searchable form. |
-| Organiser access | Single account, username + **bcrypt**-hashed password (cost 12) in `.env`. There is no public sign-up page and no way to create an account through the web. |
+| Personal data at rest | Every personal field — name, email, affiliation, country, dietary notes, abstract text — is encrypted with **AES-256-GCM** before it is written. Keys are derived from `MASTER_KEY` via HKDF. A stolen `registrations.db` is unreadable noise. The smoke test asserts this by grepping the raw file. |
+| Finding people by email | A **blind index** (HMAC-SHA256) enforces uniqueness without storing the address in searchable form. |
+| Organizer access | Single account, username + **bcrypt**-hashed password (cost 12) in `.env`. There is no public sign-up page and no way to create an account through the web. |
 | Brute force | Login is rate-limited to 8 attempts per 15 minutes per IP; registration to 25/hour. Failed attempts are logged with a hashed IP. |
 | Sessions | Signed, `httpOnly`, `SameSite=Lax`, 2-hour idle expiry, regenerated on login (no session fixation). `secure` cookies switch on automatically when `NODE_ENV=production`. |
 | CSRF | Per-session token on every form; forged tokens get a 403. |
@@ -128,7 +128,7 @@ too; the two together are what you need.
 
 ---
 
-## 6. Organiser area
+## 6. Organizer area
 
 <http://localhost:3000/admin/login> (also linked, discreetly, in the footer).
 
@@ -178,14 +178,14 @@ lib/
   db.js                   schema and queries (encrypt on write, decrypt on read)
   sqlite.js               driver shim: better-sqlite3, else Node's built-in
   session-store.js        encrypted SQLite session store
-  mailer.js               confirmation e-mail (HTML + plain text)
+  mailer.js               confirmation email (HTML + plain text)
 views/                    EJS templates
 public/css/site.css       the whole design
 public/img/               generated imagery
 tools/
   init-secrets.js         creates .env
   print-env.js            prints secrets for a hosting dashboard (npm run keys)
-  smoke-test.js           64 end-to-end checks
+  smoke-test.js           74 end-to-end checks
   generate_images.py      regenerates public/img (needs numpy, pillow, scipy)
 data/                     database + outbox — gitignored, never leaves the machine
 
