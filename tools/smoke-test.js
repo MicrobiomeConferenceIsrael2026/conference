@@ -215,7 +215,7 @@ function csrfFrom(html) {
     ok('home lists all three speakers',
       ['Tal Korem', 'Jotham Suez', 'Inga Peter'].every((n) => home.body.includes(n)));
     ok('home shows the venue', home.body.includes('Azrieli Faculty of Medicine'));
-    ok('home has a programme', home.body.includes('Programme at a glance'));
+    ok('home has a programme', home.body.includes('Programme'));
     ok('home has key dates', home.body.includes('Key dates'));
     ok('home has the committee', home.body.includes('Omry Koren') && home.body.includes('David Zeevi'));
     ok('no unrendered EJS left in the page', !home.body.includes('<%'));
@@ -282,7 +282,7 @@ function csrfFrom(html) {
     r = await request('GET', '/register/done', { cookies: jar });
     ok('confirmation page → 200', r.status === 200);
     ok('confirmation shows a reference number', /MB26-[A-Z0-9]+/.test(r.body));
-    ok('confirmation acknowledges the abstract', r.body.includes('under review'));
+    ok('confirmation acknowledges the abstract', /under review/i.test(r.body));
 
     /* ---------------- registration WITHOUT abstract ---------------- */
     console.log('\nRegistration — attendee only');

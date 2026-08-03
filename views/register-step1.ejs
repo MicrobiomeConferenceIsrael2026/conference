@@ -6,8 +6,7 @@
     <div class="wrap-narrow" style="max-width:760px">
       <div class="eyebrow eyebrow-light">Registration · step 1 of 2</div>
       <h1>Register for <%= c.shortTitle %></h1>
-      <p><%= c.fee %>. It takes about a minute — unless you are submitting an abstract,
-         in which case have your text ready to paste.</p>
+      <p>Free, two steps. Have your abstract text ready if you are submitting one.</p>
       <div class="steps">
         <div class="steps__item is-active">
           <span class="steps__num">1</span><span class="steps__label">Abstract</span>
@@ -31,10 +30,8 @@
       <% } %>
 
       <h2 style="font-size:1.5rem">Would you like to submit an abstract?</h2>
-      <p style="color:var(--ink-soft);margin-top:12px;font-size:1rem">
-        Abstracts are considered for short talks and posters. The deadline is
-        <strong><%= c.abstractDeadline %></strong> and decisions are sent by
-        <%= c.notificationDate %>. You can attend without submitting one.
+      <p style="color:var(--ink-soft);margin-top:10px">
+        Deadline <strong><%= c.abstractDeadline %></strong>. You can attend without one.
       </p>
 
       <form method="post" action="/register" style="margin-top:26px">
@@ -45,27 +42,21 @@
             <input type="radio" name="abstract_choice" value="yes"
                    <%= selected === true ? 'checked' : '' %>>
             <span class="choice__dot" aria-hidden="true"></span>
-            <span class="choice__title">Yes — I would like to present</span>
-            <span class="choice__desc">
-              You will enter the abstract title, authors and text (max 300 words) on the
-              next step, along with whether you would prefer a talk or a poster.
-            </span>
+            <span class="choice__title">Yes</span>
+            <span class="choice__desc">Title, authors and up to 300 words on the next step.</span>
           </label>
 
           <label class="choice">
             <input type="radio" name="abstract_choice" value="no"
                    <%= selected === false ? 'checked' : '' %>>
             <span class="choice__dot" aria-hidden="true"></span>
-            <span class="choice__title">No — I am attending only</span>
-            <span class="choice__desc">
-              Just your details on the next step. You can still submit an abstract later,
-              until <%= c.abstractDeadline %>, by writing to us.
-            </span>
+            <span class="choice__title">No, attending only</span>
+            <span class="choice__desc">Just your details on the next step.</span>
           </label>
         </div>
 
         <div class="form-actions">
-          <a class="back" href="/">← Back to the conference</a>
+          <a class="back" href="/">← Back</a>
           <button class="btn btn--navy" type="submit">Continue →</button>
         </div>
       </form>

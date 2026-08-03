@@ -19,10 +19,9 @@
   <div class="form-shell">
     <div class="form-card done">
       <div class="done__mark" aria-hidden="true">✓</div>
-      <h1>Thank you — you are on the list</h1>
+      <h1>You are registered</h1>
       <p>
-        A confirmation e-mail is on its way. If it has not arrived within a few minutes,
-        check your spam folder and then write to
+        A confirmation email is on its way. If it does not arrive, check spam, then write to
         <a href="mailto:<%= c.contactEmail %>"><%= c.contactEmail %></a>.
       </p>
 
@@ -39,16 +38,16 @@
           <dt>Venue</dt><dd><%= c.venue %>, <%= c.venueCity %></dd>
           <dt>Fee</dt><dd><%= c.fee %></dd>
           <% if (withAbstract) { %>
-            <dt>Abstract</dt><dd>Received — under review. Decisions by <%= c.notificationDate %>.</dd>
+            <dt>Abstract</dt><dd>Under review. Decisions by <%= c.notificationDate %>.</dd>
           <% } else { %>
-            <dt>Abstract</dt><dd>None submitted. You can still send one until <%= c.abstractDeadline %>.</dd>
+            <dt>Abstract</dt><dd>None submitted.</dd>
           <% } %>
         </dl>
       </div>
 
       <div class="form-actions" style="justify-content:center">
-        <a class="btn btn--outline" href="/#programme">See the programme</a>
-        <a class="btn btn--navy" href="/">Back to the conference</a>
+        <a class="btn btn--outline" href="/#programme">Programme</a>
+        <a class="btn btn--navy" href="/">Home</a>
       </div>
     </div>
   </div>

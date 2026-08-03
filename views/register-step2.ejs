@@ -8,7 +8,7 @@
     <div class="wrap-narrow" style="max-width:760px">
       <div class="eyebrow eyebrow-light">Registration · step 2 of 2</div>
       <h1>Your details</h1>
-      <p><% if (wantsAbstract) { %>Your details and your abstract. Nothing is submitted until you press the button at the bottom.<% } else { %>Almost done — we only need a few things.<% } %></p>
+      
       <div class="steps">
         <div class="steps__item is-done">
           <span class="steps__num">✓</span><span class="steps__label">Abstract</span>
@@ -47,16 +47,16 @@
           <div class="field <%= err('full_name') ? 'has-error' : '' %>">
             <label class="field__label" for="full_name">Full name <span class="req">*</span></label>
             <input type="text" id="full_name" name="full_name" required maxlength="120"
-                   autocomplete="name" placeholder="Dana Cohen" value="<%= v('full_name') %>">
-            <div class="field__hint">As you would like it to appear on your badge.</div>
+                   autocomplete="name" placeholder="Jane Smith" value="<%= v('full_name') %>">
+            <div class="field__hint">As it should appear on your badge.</div>
             <% if (err('full_name')) { %><div class="field__error"><%= err('full_name') %></div><% } %>
           </div>
 
           <div class="field <%= err('email') ? 'has-error' : '' %>">
             <label class="field__label" for="email">E-mail address <span class="req">*</span></label>
             <input type="email" id="email" name="email" required maxlength="160"
-                   autocomplete="email" placeholder="name@university.ac.il" value="<%= v('email') %>">
-            <div class="field__hint">Your confirmation goes here. Please use an address you check.</div>
+                   autocomplete="email" placeholder="jane.smith@university.ac.il" value="<%= v('email') %>">
+            <div class="field__hint">Where your confirmation is sent.</div>
             <% if (err('email')) { %><div class="field__error"><%= err('email') %></div><% } %>
           </div>
 
@@ -64,7 +64,7 @@
             <div class="field <%= err('affiliation') ? 'has-error' : '' %>">
               <label class="field__label" for="affiliation">Affiliation <span class="req">*</span></label>
               <input type="text" id="affiliation" name="affiliation" required maxlength="160"
-                     autocomplete="organization" placeholder="Bar-Ilan University" value="<%= v('affiliation') %>">
+                     autocomplete="organization" placeholder="University or company" value="<%= v('affiliation') %>">
               <% if (err('affiliation')) { %><div class="field__error"><%= err('affiliation') %></div><% } %>
             </div>
 
@@ -99,14 +99,14 @@
                        <%= v('abstract_type') !== 'talk' ? 'checked' : '' %>>
                 <span class="choice__dot" style="top:17px" aria-hidden="true"></span>
                 <span class="choice__title" style="font-size:1rem">Poster</span>
-                <span class="choice__desc">Two poster sessions, plus an optional 2-minute flash pitch.</span>
+                <span class="choice__desc">Two poster sessions, plus an optional 2-minute pitch.</span>
               </label>
               <label class="choice" style="padding:15px 18px 15px 50px">
                 <input type="radio" name="abstract_type" value="talk"
                        <%= v('abstract_type') === 'talk' ? 'checked' : '' %>>
                 <span class="choice__dot" style="top:17px" aria-hidden="true"></span>
                 <span class="choice__title" style="font-size:1rem">Short talk</span>
-                <span class="choice__desc">15 minutes including questions. Slots are limited; we may offer a poster instead.</span>
+                <span class="choice__desc">15 minutes including questions. Slots are limited.</span>
               </label>
             </div>
           </div>
@@ -114,7 +114,7 @@
           <div class="field <%= err('abstract_title') ? 'has-error' : '' %>">
             <label class="field__label" for="abstract_title">Abstract title <span class="req">*</span></label>
             <input type="text" id="abstract_title" name="abstract_title" maxlength="250"
-                   placeholder="Strain-level dynamics of the infant gut microbiome after antibiotic exposure"
+                   placeholder="The title of your abstract"
                    value="<%= v('abstract_title') %>">
             <% if (err('abstract_title')) { %><div class="field__error"><%= err('abstract_title') %></div><% } %>
           </div>
@@ -122,8 +122,8 @@
           <div class="field <%= err('abstract_authors') ? 'has-error' : '' %>">
             <label class="field__label" for="abstract_authors">Authors <span class="req">*</span></label>
             <input type="text" id="abstract_authors" name="abstract_authors" maxlength="400"
-                   placeholder="D. Cohen, A. Levi, O. Koren" value="<%= v('abstract_authors') %>">
-            <div class="field__hint">Presenting author first. Affiliations are not needed here.</div>
+                   placeholder="Presenting author first, comma separated" value="<%= v('abstract_authors') %>">
+            <div class="field__hint">No affiliations needed.</div>
             <% if (err('abstract_authors')) { %><div class="field__error"><%= err('abstract_authors') %></div><% } %>
           </div>
 
@@ -134,7 +134,7 @@
             </label>
             <textarea id="abstract_body" name="abstract_body" maxlength="4000"
                       placeholder="Plain text, up to 300 words. No figures or references."><%= v('abstract_body') %></textarea>
-            <div class="field__hint">Background, what you did, what you found, why it matters.</div>
+            <div class="field__hint">Background, what you did, what you found.</div>
             <% if (err('abstract_body')) { %><div class="field__error"><%= err('abstract_body') %></div><% } %>
           </div>
         </fieldset>
@@ -144,31 +144,25 @@
           <legend class="fieldset__legend">Practicalities</legend>
 
           <div class="field">
-            <label class="field__label" for="dietary">Dietary or accessibility requirements <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+            <label class="field__label" for="dietary">Dietary or access needs <span style="color:var(--muted);font-weight:400">(optional)</span></label>
             <input type="text" id="dietary" name="dietary" maxlength="300"
-                   placeholder="Vegetarian, gluten-free, step-free access…" value="<%= v('dietary') %>">
+                   placeholder="Vegetarian, step-free access…" value="<%= v('dietary') %>">
           </div>
 
           <div class="field">
-            <label class="field__label" for="notes">Anything else we should know? <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+            <label class="field__label" for="notes">Anything else? <span style="color:var(--muted);font-weight:400">(optional)</span></label>
             <textarea id="notes" name="notes" maxlength="600" style="min-height:90px"><%= v('notes') %></textarea>
           </div>
 
           <div class="field" style="margin-bottom:0">
             <label class="check">
               <input type="checkbox" name="consent_updates" value="1" <%= v('consent_updates') ? 'checked' : '' %>>
-              <span>Send me occasional e-mail about this meeting and future editions. You will get your
-              registration confirmation either way, and you can ask us to remove you at any time.</span>
+              <span>Email me about this meeting and future editions.</span>
             </label>
           </div>
         </fieldset>
 
-        <div class="alert alert--info">
-          Your details are encrypted before they are stored and are visible only to the
-          organising committee.
-        </div>
-
-        <div class="form-actions">
+                <div class="form-actions">
           <a class="back" href="/register">← Back</a>
           <button class="btn btn--gold" type="submit">
             <% if (wantsAbstract) { %>Complete registration &amp; submit abstract<% } else { %>Complete registration<% } %>
