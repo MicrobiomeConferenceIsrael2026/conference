@@ -31,18 +31,18 @@ push.
 
 ## Setting it up (one time)
 
-Three steps, roughly half an hour. Full detail in [DEPLOY.md](DEPLOY.md).
+**[DEPLOY.md](DEPLOY.md) is the step-by-step guide.** In outline:
 
-1. **Create the Google Form.** Paste `tools/create-google-form.gs` into
-   <https://script.google.com> and run it. It builds the whole form — including
-   the "are you submitting an abstract?" branch, so the abstract questions only
-   appear for people who say yes — and creates the responses spreadsheet. It
-   prints the two URLs you need.
-2. **Paste those URLs** into `googleForm` in `lib/content.js`, then
-   `npm run build`.
-3. **Turn on Pages.** Push to GitHub, then Settings → Pages → Source:
-   **GitHub Actions**. `.github/workflows/pages.yml` rebuilds and republishes on
-   every push to `main`.
+1. Run `tools/create-google-form.gs` at <https://script.google.com> — it builds
+   the whole form, branch and all, and prints two URLs
+2. Change three settings in the form by hand (Google's API can't set them, and
+   each one breaks something if missed)
+3. Paste the two URLs into `googleForm` in `lib/content.js`, `npm run build`
+4. Push to GitHub — the repo must be **public** for Pages on a free account
+5. Settings → Pages → Source: **GitHub Actions**
+
+After that, `.github/workflows/pages.yml` rebuilds and republishes on every push
+to `main`.
 
 ---
 
