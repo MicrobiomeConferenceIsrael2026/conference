@@ -206,7 +206,7 @@ p:last-child { margin-bottom: 0; }
 
 /* Grid and flex items default to min-width:auto, so one long word can make the
    page wider than the phone and swallow the side gutters. */
-.hero__inner > *, .split > *, .two-col > *, .speakers > *, .program__row > * { min-width: 0; }
+.hero__inner > *, .split > *, .two-col > *, .speakers > * { min-width: 0; }
 
 /* --- layout helpers ----------------------------------------------------- */
 .split { display: grid; grid-template-columns: 1.5fr 1fr; gap: 44px; align-items: start; }
