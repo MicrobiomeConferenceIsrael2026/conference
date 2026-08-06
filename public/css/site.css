@@ -280,37 +280,16 @@ p:last-child { margin-bottom: 0; }
   .speaker__links { margin-top: 12px; padding-top: 0; }
 }
 
-/* --- programme ---------------------------------------------------------- */
-.program { border-top: 1px solid var(--line); }
-.program__row {
-  display: grid; grid-template-columns: 78px 1fr; gap: 20px;
-  padding: 12px 0; border-bottom: 1px solid var(--line-soft); align-items: baseline;
+/* --- program (schedule not published yet) -------------------------------- */
+.program-tbd {
+  margin-top: 18px; padding: 26px 28px;
+  background: var(--tint); border: 1px solid var(--line); border-radius: var(--radius);
 }
-.program__time {
-  font-family: var(--mono); font-size: 12.5px; color: var(--muted);
+.program-tbd__time {
+  font-size: 1.7rem; font-weight: 650; letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
 }
-.program__title { font-size: .98rem; }
-.program__who { font-size: 13px; color: var(--muted); margin-top: 2px; }
-.program__row--keynote .program__title { font-weight: 650; }
-.program__row--session {
-  background: var(--tint); margin: 12px 0 0; padding: 9px 16px;
-  border-radius: var(--radius-sm); grid-template-columns: 1fr; border-bottom: 0;
-}
-.program__row--session .program__title {
-  font-size: 11px; font-weight: 700; letter-spacing: .13em;
-  text-transform: uppercase; color: var(--accent-deep);
-}
-.program__row--break .program__title { color: var(--muted); }
-.tag {
-  display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: .08em;
-  text-transform: uppercase; padding: 2px 7px; border-radius: 4px;
-  vertical-align: middle; margin-left: 8px;
-}
-.tag--keynote { background: var(--warm-tint); color: #9a6f10; }
-.tag--short { background: var(--accent-tint); color: var(--accent-deep); }
-.tag--panel { background: #eef0f8; color: #5a5f8a; }
-@media (max-width: 620px) { .program__row { grid-template-columns: 58px 1fr; gap: 12px; } }
+.program-tbd__note { margin-top: 6px; color: var(--ink-soft); font-size: .97rem; }
 
 /* --- key dates ---------------------------------------------------------- */
 .dates { list-style: none; margin: 0; padding: 0; }

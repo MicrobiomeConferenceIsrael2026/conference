@@ -88,8 +88,8 @@
             </div>
             <h3 class="speaker__name"><%= s.name %></h3>
             <div class="speaker__affil"><%= s.affiliation %></div>
-            <p class="speaker__talk"><%= s.talk %></p>
-            <p class="speaker__blurb"><%= s.blurb %></p>
+            <% if (s.talk) { %><p class="speaker__talk"><%= s.talk %></p><% } %>
+            <% if (s.blurb) { %><p class="speaker__blurb"><%= s.blurb %></p><% } %>
             <% if (s.links && s.links.length) { %>
               <div class="speaker__links">
                 <% s.links.forEach(function (l, i) { %><% if (i) { %> · <% } %><a href="<%= l.href %>" rel="noopener noreferrer" target="_blank"><%= l.label %></a><% }); %>
@@ -105,25 +105,10 @@
   <section class="section" id="program">
     <div class="wrap split">
       <div>
-        <div class="section__head" style="margin-bottom:20px">
-          <h2 class="section__title">Program</h2>
-          <p class="section__lede"><%= c.programNote %></p>
-        </div>
-
-        <div class="program">
-          <% c.program.forEach(function (row) { %>
-            <div class="program__row program__row--<%= row.kind %>">
-              <% if (row.kind !== 'session') { %><div class="program__time"><%= row.time %></div><% } %>
-              <div>
-                <div class="program__title"><%= row.title %><%
-                  if (row.kind === 'keynote') { %><span class="tag tag--keynote">Keynote</span><% }
-                  else if (row.kind === 'short') { %><span class="tag tag--short">Short talk</span><% }
-                  else if (row.kind === 'panel') { %><span class="tag tag--panel">Panel</span><% }
-                %></div>
-                <% if (row.who) { %><div class="program__who"><%= row.who %></div><% } %>
-              </div>
-            </div>
-          <% }); %>
+        <h2 class="section__title">Program</h2>
+        <div class="program-tbd">
+          <div class="program-tbd__time"><%= c.timeRange %></div>
+          <div class="program-tbd__note"><%= c.programTBD %></div>
         </div>
       </div>
 
