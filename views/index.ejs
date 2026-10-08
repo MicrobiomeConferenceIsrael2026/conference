@@ -106,9 +106,27 @@
     <div class="wrap split">
       <div>
         <h2 class="section__title">Program</h2>
-        <div class="program-tbd">
-          <div class="program-tbd__time"><%= c.timeRange %></div>
-          <div class="program-tbd__note"><%= c.programTBD %></div>
+        <p class="section__lede"><%= c.programNote %></p>
+
+        <div class="program">
+          <% c.program.forEach(function (row) { %>
+            <% if (row.kind === 'session') { %>
+              <div class="program__session">
+                <span class="program__session-name"><%= row.title %></span>
+                <% if (row.chairs) { %><span class="program__chairs">Chairs: <%= row.chairs %></span><% } %>
+              </div>
+            <% } else { %>
+              <div class="program__row program__row--<%= row.kind %>">
+                <div class="program__time"><%= row.time %></div>
+                <div>
+                  <div class="program__title"><%= row.title %><% if (row.kind === 'keynote') { %><span class="tag tag--keynote">Keynote</span><% } %></div>
+                  <% if (row.who) { %>
+                    <div class="program__who"><%= row.who %><% if (row.where) { %> · <span class="program__where"><%= row.where %></span><% } %></div>
+                  <% } %>
+                </div>
+              </div>
+            <% } %>
+          <% }); %>
         </div>
       </div>
 

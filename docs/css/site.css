@@ -280,16 +280,44 @@ p:last-child { margin-bottom: 0; }
   .speaker__links { margin-top: 12px; padding-top: 0; }
 }
 
-/* --- program (schedule not published yet) -------------------------------- */
-.program-tbd {
-  margin-top: 18px; padding: 26px 28px;
-  background: var(--tint); border: 1px solid var(--line); border-radius: var(--radius);
+/* --- program timetable ---------------------------------------------------- */
+.program { margin-top: 20px; }
+
+.program__session {
+  display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+  margin: 22px 0 2px; padding: 8px 14px;
+  background: var(--tint); border-radius: var(--radius-sm);
 }
-.program-tbd__time {
-  font-size: 1.7rem; font-weight: 650; letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
+.program__session:first-child { margin-top: 0; }
+.program__session-name {
+  font-size: 11px; font-weight: 700; letter-spacing: .13em;
+  text-transform: uppercase; color: var(--accent-deep);
 }
-.program-tbd__note { margin-top: 6px; color: var(--ink-soft); font-size: .97rem; }
+.program__chairs { font-size: 12.5px; color: var(--muted); }
+
+.program__row {
+  display: grid; grid-template-columns: 62px 1fr; gap: 16px;
+  padding: 11px 14px; border-bottom: 1px solid var(--line-soft); align-items: baseline;
+}
+.program__row:last-child { border-bottom: 0; }
+.program__time {
+  font-variant-numeric: tabular-nums; font-size: 13.5px;
+  color: var(--muted); font-weight: 550;
+}
+.program__title { font-size: .97rem; line-height: 1.45; }
+.program__who { font-size: 13px; color: var(--ink-soft); margin-top: 3px; }
+.program__where { color: var(--muted); }
+
+.program__row--keynote { background: var(--accent-tint); border-radius: var(--radius-sm); border-bottom: 0; }
+.program__row--keynote .program__title { font-weight: 650; }
+.program__row--keynote .program__time { color: var(--accent-deep); }
+.program__row--break .program__title,
+.program__row--admin .program__title { color: var(--muted); }
+
+@media (max-width: 620px) {
+  .program__row { grid-template-columns: 52px 1fr; gap: 10px; padding: 10px 10px; }
+  .program__session { padding: 7px 10px; }
+}
 
 /* --- key dates ---------------------------------------------------------- */
 .dates { list-style: none; margin: 0; padding: 0; }
