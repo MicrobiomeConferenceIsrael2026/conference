@@ -71,36 +71,6 @@
     </div>
   </section>
 
-  <!-- ================= SPEAKERS ================= -->
-  <section class="section section--paper" id="speakers">
-    <div class="wrap">
-      <div class="section__head">
-        <h2 class="section__title">Speakers</h2>
-        <p class="section__lede"><%= c.speakersNote %></p>
-      </div>
-
-      <div class="speakers">
-        <% c.speakers.forEach(function (s) { %>
-          <article class="speaker">
-            <div class="speaker__portrait">
-              <img src="<%= s.image %>" alt="" loading="lazy" aria-hidden="true">
-              <span class="speaker__initials"><%= s.name.split(' ').map(function(w){return w[0];}).join('') %></span>
-            </div>
-            <h3 class="speaker__name"><%= s.name %></h3>
-            <div class="speaker__affil"><%= s.affiliation %></div>
-            <% if (s.talk) { %><p class="speaker__talk"><%= s.talk %></p><% } %>
-            <% if (s.blurb) { %><p class="speaker__blurb"><%= s.blurb %></p><% } %>
-            <% if (s.links && s.links.length) { %>
-              <div class="speaker__links">
-                <% s.links.forEach(function (l, i) { %><% if (i) { %> · <% } %><a href="<%= l.href %>" rel="noopener noreferrer" target="_blank"><%= l.label %></a><% }); %>
-              </div>
-            <% } %>
-          </article>
-        <% }); %>
-      </div>
-    </div>
-  </section>
-
   <!-- ================= PROGRAM ================= -->
   <section class="section" id="program">
     <div class="wrap split">

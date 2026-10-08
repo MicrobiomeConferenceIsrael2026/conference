@@ -105,7 +105,11 @@ function get(urlPath) {
     ok('GET / → 200', idx.status === 200, `got ${idx.status}`);
     ok('index is well-formed HTML', unbalanced(idx.body).length === 0, unbalanced(idx.body).join('; '));
     ok('index has the conference title', idx.body.includes(content.title));
-    ok('index lists every speaker', content.speakers.every((s) => idx.body.includes(s.name)));
+    ok(
+      'index lists every program speaker',
+      content.program.filter((r) => r.who && r.kind !== 'session')
+        .every((r) => idx.body.includes(r.who))
+    );
     ok('index lists the whole committee', content.committee.every((m) => idx.body.includes(m.name)));
     ok('index has the program', idx.body.includes('Program'));
     ok('index has key dates', idx.body.includes('Key dates'));
@@ -140,7 +144,7 @@ function get(urlPath) {
     console.log('\nAssets');
     for (const asset of [
       '/css/site.css', '/js/site.js', '/favicon.svg',
-      '/img/hero-microbiome.jpg', '/img/biofilm.jpg', '/img/speaker-korem.jpg',
+      '/img/hero-microbiome.jpg', '/img/biofilm.jpg',
     ]) {
       const r = await get(asset);
       ok(`${asset}`, r.status === 200, `got ${r.status}`);
@@ -183,7 +187,7 @@ function get(urlPath) {
     }
 
     ok('nav points at register.html', /href="register\.html"/.test(idx.body));
-    ok('register links back to index sections', /href="index\.html#speakers"/.test(reg.body));
+    ok('register links back to index sections', /href="index\.html#program"/.test(reg.body));
     ok('no admin area is published', !/\/admin/.test(idx.body + reg.body));
     ok('admin.js is not published', (await get('/js/admin.js')).status === 404);
     ok('.nojekyll exists', require('fs').existsSync(path.join(ROOT, 'docs', '.nojekyll')));

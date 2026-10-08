@@ -160,8 +160,10 @@ async function build() {
   const idx = fs.readFileSync(path.join(OUT, 'index.html'), 'utf8');
   check(idx.includes(content.title), 'index.html carries the conference title');
   check(
-    content.speakers.every((s) => idx.includes(s.name)),
-    'index.html lists every speaker'
+    content.program
+      .filter((r) => r.who && r.kind !== 'session')
+      .every((r) => idx.includes(r.who)),
+    'index.html lists every program speaker'
   );
   check(
     content.committee.every((m) => idx.includes(m.name)),

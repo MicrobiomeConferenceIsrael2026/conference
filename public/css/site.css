@@ -206,7 +206,7 @@ p:last-child { margin-bottom: 0; }
 
 /* Grid and flex items default to min-width:auto, so one long word can make the
    page wider than the phone and swallow the side gutters. */
-.hero__inner > *, .split > *, .two-col > *, .speakers > * { min-width: 0; }
+.hero__inner > *, .split > *, .two-col > * { min-width: 0; }
 
 /* --- layout helpers ----------------------------------------------------- */
 .split { display: grid; grid-template-columns: 1.5fr 1fr; gap: 44px; align-items: start; }
@@ -249,36 +249,6 @@ p:last-child { margin-bottom: 0; }
 }
 .figure--tall img { aspect-ratio: 4 / 5; }
 .figure--wide img { aspect-ratio: 16 / 9; }
-
-/* --- speakers ----------------------------------------------------------- */
-/* Equal-height cards: the grid row stretches every card to the tallest one,
-   and each card is a column-flex so the links pin to the bottom. */
-.speakers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-.speaker {
-  display: flex; flex-direction: column;
-  background: var(--paper); border: 1px solid var(--line);
-  border-radius: var(--radius); padding: 18px 20px 20px;
-}
-.speaker__portrait {
-  width: 84px; height: 84px; flex: none; margin-bottom: 14px;
-  border-radius: var(--radius); overflow: hidden; background: var(--deep); position: relative;
-}
-.speaker__portrait img { width: 100%; height: 100%; object-fit: cover; }
-.speaker__initials {
-  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-  font-size: 26px; font-weight: 600; color: rgba(255,255,255,.92); letter-spacing: .02em;
-}
-.speaker__name { font-size: 1.12rem; }
-.speaker__affil { font-size: 13px; color: var(--muted); margin-top: 2px; }
-.speaker__talk {
-  margin-top: 12px; font-size: .97rem; font-weight: 600; color: var(--accent-deep); line-height: 1.4;
-}
-.speaker__blurb { margin-top: 8px; color: var(--ink-soft); font-size: .92rem; }
-.speaker__links { margin-top: auto; padding-top: 12px; font-size: 13px; }
-@media (max-width: 880px) {
-  .speakers { grid-template-columns: 1fr; gap: 14px; }
-  .speaker__links { margin-top: 12px; padding-top: 0; }
-}
 
 /* --- program timetable ---------------------------------------------------- */
 .program { margin-top: 20px; }
