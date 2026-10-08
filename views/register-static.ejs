@@ -5,8 +5,7 @@
   <section class="page-head">
     <div class="wrap-narrow" style="max-width:820px">
       <h1>Register</h1>
-      <p><%= c.fee %> to attend. Submitting an abstract is optional — the form asks
-         you on the first page and shows the abstract fields only if you say yes.</p>
+      <p><%= c.fee %> to attend. Registration closes <%= c.registrationDeadline %>.</p>
     </div>
   </section>
 
@@ -36,10 +35,10 @@
     <% } %>
 
     <div class="card" style="margin-top:24px">
-      <div class="card__title">Deadlines</div>
+      <div class="card__title">The day</div>
       <ul class="dates">
-        <li><span class="dates__label">Abstract deadline</span><span class="dates__value"><%= c.abstractDeadline %></span></li>
-        <li><span class="dates__label">Decisions sent</span><span class="dates__value"><%= c.notificationDate %></span></li>
+        <li><span class="dates__label">Conference</span><span class="dates__value"><%= c.date %></span></li>
+        <li><span class="dates__label">Time</span><span class="dates__value"><%= c.timeRange %></span></li>
         <li><span class="dates__label">Registration closes</span><span class="dates__value"><%= c.registrationDeadline %></span></li>
       </ul>
       <p style="font-size:.92rem;color:var(--muted);margin-top:14px">

@@ -146,19 +146,10 @@
     </div>
   </section>
 
-  <!-- ================= ABSTRACTS + KEY DATES ================= -->
-  <section class="section section--paper" id="abstracts">
+  <!-- ================= KEY DATES ================= -->
+  <section class="section section--paper" id="dates">
     <div class="wrap two-col two-col--divided">
       <div>
-        <h2 class="section__title">Abstracts</h2>
-        <p style="margin-top:12px;color:var(--ink-soft)"><%= c.abstractInfo %></p>
-        <ul style="margin:18px 0 0;padding-left:1.1em;color:var(--ink-soft);font-size:.95rem">
-          <% c.abstractRules.forEach(function (r) { %><li style="margin-bottom:5px"><%= r %></li><% }); %>
-        </ul>
-        <a class="btn btn--navy" href="/register" style="margin-top:20px">Submit an abstract</a>
-      </div>
-
-      <div id="dates">
         <h2 class="section__title">Key dates</h2>
         <ul class="dates" style="margin-top:14px">
           <% c.keyDates.forEach(function (d) { %>
@@ -168,6 +159,12 @@
             </li>
           <% }); %>
         </ul>
+      </div>
+
+      <div>
+        <h2 class="section__title">Attending</h2>
+        <p style="margin-top:12px;color:var(--ink-soft)"><%= c.attendingNote %></p>
+        <a class="btn btn--navy" href="/register" style="margin-top:20px">Register</a>
       </div>
     </div>
   </section>
