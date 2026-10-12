@@ -274,6 +274,12 @@ p:last-child { margin-bottom: 0; }
   font-variant-numeric: tabular-nums; font-size: 13.5px;
   color: var(--muted); font-weight: 550;
 }
+/* Its own line above the title — as an inline badge it read as part of the
+   talk title, especially once the title wrapped. */
+.program__kind {
+  font-size: 10.5px; font-weight: 700; letter-spacing: .13em;
+  text-transform: uppercase; color: var(--accent-deep); margin-bottom: 5px;
+}
 .program__title { font-size: .97rem; line-height: 1.45; }
 .program__who { font-size: 13px; color: var(--ink-soft); margin-top: 3px; }
 .program__where { color: var(--muted); }

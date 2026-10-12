@@ -89,7 +89,8 @@
               <div class="program__row program__row--<%= row.kind %>">
                 <div class="program__time"><%= row.time %></div>
                 <div>
-                  <div class="program__title"><%= row.title %><% if (row.kind === 'keynote') { %><span class="tag tag--keynote">Keynote</span><% } %></div>
+                  <% if (row.kind === 'keynote') { %><div class="program__kind">Keynote</div><% } %>
+                  <div class="program__title"><%= row.title %></div>
                   <% if (row.who) { %>
                     <div class="program__who"><%= row.who %><% if (row.where) { %> · <span class="program__where"><%= row.where %></span><% } %></div>
                   <% } %>
