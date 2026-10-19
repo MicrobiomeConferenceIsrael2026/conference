@@ -312,6 +312,11 @@ function appleScript(jobs) {
 -- Every name here is prefixed mb… on purpose: plain words like "failed" or
 -- "content" collide with terms in Outlook's own dictionary, and AppleScript
 -- resolves the dictionary first.
+--
+-- There is deliberately no "save" command: "make new outgoing message" already
+-- puts the message in Drafts, and Outlook's "save" is the Standard Suite one,
+-- which demands a file to save into and fails with
+-- "A file or directory where the object should be saved is required."
 
 property mbOnlyFirst : false
 property mbMade : 0
@@ -329,7 +334,6 @@ on mbDraft(mbSubject, mbHtml, mbToName, mbToAddr, mbCcList)
 				make new cc recipient at mbMsg with properties ¬
 					{email address:{name:(item 1 of mbOne), address:(item 2 of mbOne)}}
 			end repeat
-			save mbMsg
 		end tell
 		set mbMade to mbMade + 1
 	on error mbErr
