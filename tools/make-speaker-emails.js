@@ -287,51 +287,72 @@ const asStr = (s) =>
   '"' + String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/[\r\n]+/g, ' ') + '"';
 
 function appleScript(jobs) {
-  const blocks = jobs
-    .filter((j) => j.address)
-    .map((j) => {
-      const recips = [
-        `\t\tmake new to recipient at newMsg with properties {email address:{name:${asStr(j.letter.to)}, address:${asStr(j.address)}}}`,
-        ...CC_LIST.map((x) =>
-          `\t\tmake new cc recipient at newMsg with properties {email address:{name:${asStr(x.name)}, address:${asStr(x.address)}}}`),
-      ].join('\n');
-      return `\ttry
-\t\tset newMsg to make new outgoing message with properties {subject:${asStr(j.letter.subject)}, content:${asStr(j.letter.html)}}
-${recips}
-\t\tsave newMsg
-\t\tset madeCount to madeCount + 1
-\ton error errMsg
-\t\tset failed to failed & ${asStr(j.letter.to)} & " (" & errMsg & ")" & return
-\tend try`;
-    })
-    .join('\n\n');
+  const cc = CC_LIST.map((x) => `{${asStr(x.name)}, ${asStr(x.address)}}`).join(', ');
 
-  return `-- Microbiome 2026 — create speaker and chair emails as Outlook drafts.
+  const calls = jobs
+    .filter((j) => j.address)
+    .map((j) =>
+      `mbDraft(${asStr(j.letter.subject)}, ${asStr(j.letter.html)}, ` +
+      `${asStr(j.letter.to)}, ${asStr(j.address)}, mbCcList)`)
+    .join('\n');
+
+  return `-- Microbiome 2026 — create the speaker and chair emails as Outlook drafts.
 --
--- Open this in Script Editor (/Applications/Utilities) and press Run.
--- Nothing is sent: each message lands in Outlook's Drafts folder for you to
+-- Open in Script Editor (Applications > Utilities) and press Run.
+-- Nothing is sent. Each message lands in Outlook's Drafts folder for you to
 -- read and send yourself.
 --
--- If this fails with "New mode is unscriptable", your Outlook is the New
--- Outlook, which drops AppleScript. Either switch it off (Outlook menu ->
--- Legacy Outlook) or use emails/send.html instead.
+-- TRY ONE FIRST: set mbOnlyFirst below to true, Run, and check the draft
+-- looks right. Then set it back to false and Run again for the rest.
+--
+-- If it fails with "New mode is unscriptable", your Outlook is the New
+-- Outlook, which dropped AppleScript. Switch to Legacy Outlook from the
+-- Outlook menu, or use emails/send.html instead.
+--
+-- Every name here is prefixed mb… on purpose: plain words like "failed" or
+-- "content" collide with terms in Outlook's own dictionary, and AppleScript
+-- resolves the dictionary first.
 
-set madeCount to 0
-set failed to ""
+property mbOnlyFirst : false
+property mbMade : 0
+property mbFailed : ""
 
-tell application "Microsoft Outlook"
-	activate
+on mbDraft(mbSubject, mbHtml, mbToName, mbToAddr, mbCcList)
+	if mbOnlyFirst and mbMade > 0 then return
+	try
+		tell application "Microsoft Outlook"
+			set mbMsg to make new outgoing message with properties ¬
+				{subject:mbSubject, content:mbHtml}
+			make new to recipient at mbMsg with properties ¬
+				{email address:{name:mbToName, address:mbToAddr}}
+			repeat with mbOne in mbCcList
+				make new cc recipient at mbMsg with properties ¬
+					{email address:{name:(item 1 of mbOne), address:(item 2 of mbOne)}}
+			end repeat
+			save mbMsg
+		end tell
+		set mbMade to mbMade + 1
+	on error mbErr
+		set mbFailed to mbFailed & mbToName & " — " & mbErr & return
+	end try
+end mbDraft
 
-${blocks}
+set mbMade to 0
+set mbFailed to ""
+set mbCcList to {${cc}}
 
-end tell
+tell application "Microsoft Outlook" to activate
 
-if failed is "" then
-	display dialog "Created " & madeCount & " drafts in Outlook." & return & return & ¬
-		"They are in the Drafts folder. Read each one, then send." buttons {"OK"} default button 1
+${calls}
+
+if mbFailed is "" then
+	display dialog "Created " & mbMade & " drafts in Outlook." & return & return & ¬
+		"They are in the Drafts folder. Read each one, then send." ¬
+		buttons {"OK"} default button 1 with title "Microbiome 2026"
 else
-	display dialog "Created " & madeCount & " drafts." & return & return & ¬
-		"These failed:" & return & failed buttons {"OK"} default button 1
+	display dialog "Created " & mbMade & " drafts." & return & return & ¬
+		"These did not work:" & return & mbFailed ¬
+		buttons {"OK"} default button 1 with title "Microbiome 2026"
 end if
 `;
 }
