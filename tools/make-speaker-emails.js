@@ -47,12 +47,7 @@ const PLACE = 'Azrieli+Faculty+of+Medicine+Safed';
 const MAPS = 'https://maps.google.com/?q=' + PLACE;
 const WAZE = 'https://waze.com/ul?q=' + PLACE + '&navigate=yes';
 
-/* These go out from David's Weizmann account, not from any personal address.
- * FROM lands in the .eml header; SEND_AS is matched against the configured
- * Outlook accounts so AppleScript does not fall back on whichever account
- * happens to be the default. */
-const SEND_AS = 'david.zeevi@weizmann.ac.il';
-const FROM = `David Zeevi <${SEND_AS}>`;
+const FROM = 'Microbiome 2026 <microbiomeconferenceisrael@gmail.com>';
 
 const ORGANIZER_OVERRIDES = {
   'David Zeevi': 'david.zeevi@weizmann.ac.il',
@@ -336,44 +331,13 @@ property mbMade : 0
 property mbFailed : ""
 property mbWhere : ""
 
-global mbAcct
-
--- Outlook otherwise composes from whichever account happens to be the
--- default, which is how these nearly went out from a personal address.
-on mbFindAccount(mbWanted)
-	tell application "Microsoft Outlook"
-		try
-			repeat with mbA in exchange accounts
-				if (email address of mbA) is mbWanted then return mbA
-			end repeat
-		end try
-		try
-			repeat with mbA in imap accounts
-				if (email address of mbA) is mbWanted then return mbA
-			end repeat
-		end try
-		try
-			repeat with mbA in pop accounts
-				if (email address of mbA) is mbWanted then return mbA
-			end repeat
-		end try
-	end tell
-	return missing value
-end mbFindAccount
-
 on mbDraft(mbSubject, mbHtml, mbToName, mbToAddr, mbCcList)
-	global mbAcct
 	if mbOnlyFirst and mbMade > 0 then return
 	set mbSpot to ""
 	try
 		tell application "Microsoft Outlook"
-			if mbAcct is missing value then
-				set mbMsg to make new outgoing message with properties ¬
-					{subject:mbSubject, content:mbHtml}
-			else
-				set mbMsg to make new outgoing message with properties ¬
-					{subject:mbSubject, content:mbHtml, account:mbAcct}
-			end if
+			set mbMsg to make new outgoing message with properties ¬
+				{subject:mbSubject, content:mbHtml}
 			make new to recipient at mbMsg with properties ¬
 				{email address:{name:mbToName, address:mbToAddr}}
 			repeat with mbOne in mbCcList
@@ -402,22 +366,9 @@ set mbCcList to {${cc}}
 
 tell application "Microsoft Outlook" to activate
 
-set mbAcct to mbFindAccount("${SEND_AS}")
-if mbAcct is missing value then
-	display dialog "No Outlook account is set up for ${SEND_AS}." & return & return & ¬
-		"Carrying on would compose from whichever account Outlook treats as the default." ¬
-		buttons {"Stop", "Use the default anyway"} default button 1 with icon caution ¬
-		with title "Microbiome 2026"
-	if button returned of result is "Stop" then error number -128
-end if
-
 ${calls}
 
-if mbAcct is missing value then
-	set mbNote to "Sent from: the default account — CHECK THIS before sending."
-else
-	set mbNote to "Sent from: ${SEND_AS}"
-end if
+set mbNote to "Check the From address on the first one before you send."
 if mbWhere is "" then
 	set mbNote to mbNote & return & "Outlook would not say which folder they went to."
 else
