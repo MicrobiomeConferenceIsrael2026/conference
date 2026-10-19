@@ -171,7 +171,11 @@ async function build() {
   );
 
   const reg = fs.readFileSync(path.join(OUT, 'register.html'), 'utf8');
-  if (content.googleForm && content.googleForm.embedUrl) {
+  if (!content.registrationOpen) {
+    check(/registration is closed/i.test(reg), 'register.html says registration is closed');
+    check(!/<iframe/.test(reg), 'register.html no longer embeds the form');
+    check(!/>Register</.test(idx), 'index.html has no Register buttons left');
+  } else if (content.googleForm && content.googleForm.embedUrl) {
     check(reg.includes('<iframe'), 'register.html embeds the Google Form');
     check(
       /^https:\/\/docs\.google\.com\/forms\//.test(content.googleForm.embedUrl),

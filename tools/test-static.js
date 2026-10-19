@@ -122,8 +122,13 @@ function get(urlPath) {
     const notFound = await get('/no-such-page');
     ok('unknown URL → the 404 page', notFound.status === 404 && /not found/i.test(notFound.body));
 
-    console.log('\nRegistration form');
-    if (content.googleForm && content.googleForm.embedUrl) {
+    console.log('\nRegistration');
+    if (!content.registrationOpen) {
+      ok('register.html says registration is closed', /registration is closed/i.test(reg.body));
+      ok('the Google Form is no longer embedded', !/<iframe/.test(reg.body));
+      ok('no Register button anywhere on the home page', !/>Register</.test(idx.body));
+      ok('no Register link in the footer', !/href="register\.html">Register</.test(idx.body));
+    } else if (content.googleForm && content.googleForm.embedUrl) {
       ok('the Google Form is embedded', /<iframe[^>]+docs\.google\.com\/forms/.test(reg.body));
       ok('there is an "open in a new tab" fallback', /target="_blank"/.test(reg.body));
       ok(
@@ -186,7 +191,14 @@ function get(urlPath) {
       );
     }
 
-    ok('nav points at register.html', /href="register\.html"/.test(idx.body));
+    ok(
+      content.registrationOpen
+        ? 'nav points at register.html'
+        : 'nav has no register link while registration is closed',
+      content.registrationOpen
+        ? /href="register\.html"/.test(idx.body)
+        : !/href="register\.html"/.test(idx.body)
+    );
     ok('register links back to index sections', /href="index\.html#program"/.test(reg.body));
     ok('no admin area is published', !/\/admin/.test(idx.body + reg.body));
     ok('admin.js is not published', (await get('/js/admin.js')).status === 404);

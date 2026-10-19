@@ -1,5 +1,15 @@
 <%- include('partials/head', { pageTitle: undefined }) %>
 <%- include('partials/header') %>
+<%
+  /* Escape everything, then allow <i>…</i> back in — so species names can be
+     italicised in lib/content.js without opening the door to stray markup. */
+  function t(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/&lt;(\/?)i&gt;/g, '<$1i>');
+  }
+%>
 
 <main id="main">
 
@@ -16,10 +26,18 @@
           <div><span class="dot"></span><%= c.fee %> to attend</div>
         </div>
         <div class="hero__actions">
-          <a class="btn btn--navy" href="/register">Register</a>
-          <a class="btn btn--ghost" href="#program">Program</a>
+          <% if (c.registrationOpen) { %>
+            <a class="btn btn--navy" href="/register">Register</a>
+            <a class="btn btn--ghost" href="#program">Program</a>
+          <% } else { %>
+            <a class="btn btn--navy" href="#program">See the program</a>
+          <% } %>
         </div>
-        <p class="hero__note">Abstracts close <%= c.abstractDeadline %> · registration closes <%= c.registrationDeadline %></p>
+        <% if (c.registrationOpen) { %>
+          <p class="hero__note">Registration closes <%= c.registrationDeadline %></p>
+        <% } else { %>
+          <p class="hero__note"><%= c.registrationClosedNote %></p>
+        <% } %>
       </div>
       <div class="hero__art">
         <img src="/img/hero-microbiome.jpg" alt="Fluorescence micrograph of a dense bacterial community">
@@ -42,11 +60,15 @@
         </div>
         <div class="facts__cell">
           <div class="facts__k">Registration</div>
-          <div class="facts__v"><%= c.fee %><small>Closes <%= c.registrationDeadline %></small></div>
+          <% if (c.registrationOpen) { %>
+            <div class="facts__v"><%= c.fee %><small>Closes <%= c.registrationDeadline %></small></div>
+          <% } else { %>
+            <div class="facts__v">Closed<small>Closed <%= c.registrationDeadline %></small></div>
+          <% } %>
         </div>
         <div class="facts__cell">
-          <div class="facts__k">Abstracts</div>
-          <div class="facts__v">Open<small>Until <%= c.abstractDeadline %></small></div>
+          <div class="facts__k">Program</div>
+          <div class="facts__v"><%= c.program.filter(function(r){return r.kind==='talk'||r.kind==='keynote';}).length %> talks<small><%= c.program.filter(function(r){return r.kind==='session';}).length %> sessions, 2 keynotes</small></div>
         </div>
       </div>
     </div>
@@ -66,7 +88,9 @@
             <% c.audience.forEach(function (a) { %><li><%= a %></li><% }); %>
           </ul>
         </div>
-        <a class="btn btn--navy btn--full" href="/register" style="margin-top:16px">Register — <%= c.fee.toLowerCase() %></a>
+        <% if (c.registrationOpen) { %>
+          <a class="btn btn--navy btn--full" href="/register" style="margin-top:16px">Register — <%= c.fee.toLowerCase() %></a>
+        <% } %>
       </aside>
     </div>
   </section>
@@ -90,7 +114,7 @@
                 <div class="program__time"><%= row.time %></div>
                 <div>
                   <% if (row.kind === 'keynote') { %><div class="program__kind">Keynote</div><% } %>
-                  <div class="program__title"><%= row.title %></div>
+                  <div class="program__title"><%- t(row.title) %></div>
                   <% if (row.who) { %>
                     <div class="program__who"><%= row.who %><% if (row.where) { %> · <span class="program__where"><%= row.where %></span><% } %></div>
                   <% } %>
@@ -134,8 +158,15 @@
 
       <div>
         <h2 class="section__title">Attending</h2>
-        <p style="margin-top:12px;color:var(--ink-soft)"><%= c.attendingNote %></p>
-        <a class="btn btn--navy" href="/register" style="margin-top:20px">Register</a>
+        <% if (c.registrationOpen) { %>
+          <p style="margin-top:12px;color:var(--ink-soft)"><%= c.attendingNote %></p>
+          <a class="btn btn--navy" href="/register" style="margin-top:20px">Register</a>
+        <% } else { %>
+          <p style="margin-top:12px;color:var(--ink-soft)"><%= c.registrationClosedNote %></p>
+          <p style="margin-top:14px;font-size:.95rem">
+            <a href="mailto:<%= c.contactEmail %>"><%= c.contactEmail %></a>
+          </p>
+        <% } %>
       </div>
     </div>
   </section>
@@ -168,11 +199,19 @@
   <!-- ================= CTA ================= -->
   <section class="cta-band">
     <div class="wrap cta-band__inner">
-      <div>
-        <h2>Registration is open</h2>
-        <p>Two steps, free, and you can attach your abstract as you go.</p>
-      </div>
-      <a class="btn btn--navy" href="/register">Register</a>
+      <% if (c.registrationOpen) { %>
+        <div>
+          <h2>Registration is open</h2>
+          <p>Free, and it takes a minute.</p>
+        </div>
+        <a class="btn btn--navy" href="/register">Register</a>
+      <% } else { %>
+        <div>
+          <h2>See you in Safed</h2>
+          <p><%= c.date %> · <%= c.timeRange %> · <%= c.venue %></p>
+        </div>
+        <a class="btn btn--navy" href="#program">The program</a>
+      <% } %>
     </div>
   </section>
 
