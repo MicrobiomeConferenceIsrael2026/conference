@@ -13,6 +13,7 @@
     "preview": "node tools/build-static.js && node tools/preview.js",
     "share": "node tools/share.js",
     "smoke": "node tools/test-static.js",
+    "emails": "node tools/make-speaker-emails.js",
     "start": "node server.js",
     "dev": "node server.js",
     "smoke:server": "node tools/smoke-test.js",

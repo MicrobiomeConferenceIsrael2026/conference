@@ -5,3 +5,4 @@ data-smoke/
 *.log
 .DS_Store
 npm-debug.log*
+speaker-emails.md
