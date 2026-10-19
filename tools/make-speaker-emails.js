@@ -47,7 +47,12 @@ const PLACE = 'Azrieli+Faculty+of+Medicine+Safed';
 const MAPS = 'https://maps.google.com/?q=' + PLACE;
 const WAZE = 'https://waze.com/ul?q=' + PLACE + '&navigate=yes';
 
-const FROM = 'Microbiome 2026 <microbiomeconferenceisrael@gmail.com>';
+/* These go out from David's Weizmann account, not from any personal address.
+ * FROM lands in the .eml header; SEND_AS is matched against the configured
+ * Outlook accounts so AppleScript does not fall back on whichever account
+ * happens to be the default. */
+const SEND_AS = 'david.zeevi@weizmann.ac.il';
+const FROM = `David Zeevi <${SEND_AS}>`;
 
 const ORGANIZER_OVERRIDES = {
   'David Zeevi': 'david.zeevi@weizmann.ac.il',
@@ -197,26 +202,26 @@ function chairLetter(name, session) {
 
   const html = `<div style="${BODY}">
 <p style="${P}">Dear ${esc(first)},</p>
-<p style="${P}">Thank you for agreeing to chair ${esc(session.name)} at Microbiome 2026${co.length ? `, together with ${esc(andList(co))}` : ''}. Here is everything you need for Sunday.</p>
+<p style="${P}">We have put you down to chair ${esc(session.name)} at Microbiome 2026${co.length ? `, together with ${esc(andList(co))}` : ''}. We hope that suits you — if it does not, tell us and we will rearrange. Here is everything you need for Sunday.</p>
 <p style="margin:0 0 10px"><strong>${esc(session.name)} · ${a.time}–${z.end}</strong></p>
 ${htmlList}
 <p style="${P}">Keeping to time is the main thing — the day is full and the breaks are what let people actually talk to each other. Beyond that, please run the discussion however you see fit.</p>
 <p style="${P}"><strong>The day</strong></p>
 ${dayBlockHtml()}
 <p style="${P}">The <a href="${SITE}#program" style="${LINK}">full program is on the conference site</a>.</p>
-<p style="${P}">Thank you again for helping the day run — see you in Safed on Sunday.</p>
+<p style="${P}">Thank you for helping the day run — see you in Safed on Sunday.</p>
 <p style="${P}">Warm regards,<br>${esc(SIGNOFF)}<br>
 <span style="${LABEL}">Microbiome 2026 organizing committee</span></p>
 </div>`;
 
   const text = [
     `Dear ${first},`, '',
-    `Thank you for agreeing to chair ${session.name} at Microbiome 2026${co.length ? `, together with ${andList(co)}` : ''}. Here is everything you need for Sunday.`, '',
+    `We have put you down to chair ${session.name} at Microbiome 2026${co.length ? `, together with ${andList(co)}` : ''}. We hope that suits you — if it does not, tell us and we will rearrange. Here is everything you need for Sunday.`, '',
     `${session.name.toUpperCase()} · ${a.time}–${z.end}`, textList, '',
     'Keeping to time is the main thing — the day is full and the breaks are what let people actually talk to each other. Beyond that, please run the discussion however you see fit.', '',
     'THE DAY', dayBlockText(), '',
     `Full program: ${SITE}#program`, '',
-    'Thank you again for helping the day run — see you in Safed on Sunday.', '',
+    'Thank you for helping the day run — see you in Safed on Sunday.', '',
     'Warm regards,', SIGNOFF, 'Microbiome 2026 organizing committee',
   ].join('\n');
 
@@ -331,13 +336,44 @@ property mbMade : 0
 property mbFailed : ""
 property mbWhere : ""
 
+global mbAcct
+
+-- Outlook otherwise composes from whichever account happens to be the
+-- default, which is how these nearly went out from a personal address.
+on mbFindAccount(mbWanted)
+	tell application "Microsoft Outlook"
+		try
+			repeat with mbA in exchange accounts
+				if (email address of mbA) is mbWanted then return mbA
+			end repeat
+		end try
+		try
+			repeat with mbA in imap accounts
+				if (email address of mbA) is mbWanted then return mbA
+			end repeat
+		end try
+		try
+			repeat with mbA in pop accounts
+				if (email address of mbA) is mbWanted then return mbA
+			end repeat
+		end try
+	end tell
+	return missing value
+end mbFindAccount
+
 on mbDraft(mbSubject, mbHtml, mbToName, mbToAddr, mbCcList)
+	global mbAcct
 	if mbOnlyFirst and mbMade > 0 then return
 	set mbSpot to ""
 	try
 		tell application "Microsoft Outlook"
-			set mbMsg to make new outgoing message with properties ¬
-				{subject:mbSubject, content:mbHtml}
+			if mbAcct is missing value then
+				set mbMsg to make new outgoing message with properties ¬
+					{subject:mbSubject, content:mbHtml}
+			else
+				set mbMsg to make new outgoing message with properties ¬
+					{subject:mbSubject, content:mbHtml, account:mbAcct}
+			end if
 			make new to recipient at mbMsg with properties ¬
 				{email address:{name:mbToName, address:mbToAddr}}
 			repeat with mbOne in mbCcList
@@ -366,12 +402,26 @@ set mbCcList to {${cc}}
 
 tell application "Microsoft Outlook" to activate
 
+set mbAcct to mbFindAccount("${SEND_AS}")
+if mbAcct is missing value then
+	display dialog "No Outlook account is set up for ${SEND_AS}." & return & return & ¬
+		"Carrying on would compose from whichever account Outlook treats as the default." ¬
+		buttons {"Stop", "Use the default anyway"} default button 1 with icon caution ¬
+		with title "Microbiome 2026"
+	if button returned of result is "Stop" then error number -128
+end if
+
 ${calls}
 
-if mbWhere is "" then
-	set mbNote to "Outlook would not say which folder they went to."
+if mbAcct is missing value then
+	set mbNote to "Sent from: the default account — CHECK THIS before sending."
 else
-	set mbNote to "Outlook filed them under: " & mbWhere
+	set mbNote to "Sent from: ${SEND_AS}"
+end if
+if mbWhere is "" then
+	set mbNote to mbNote & return & "Outlook would not say which folder they went to."
+else
+	set mbNote to mbNote & return & "Outlook filed them under: " & mbWhere
 end if
 
 if mbOpenWindows then
