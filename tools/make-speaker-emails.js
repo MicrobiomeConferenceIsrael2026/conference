@@ -186,7 +186,7 @@ ${esc(SIGNOFF)}<br>
   ].join('\n');
 
   return {
-    subject: `Microbiome 2026 — your ${kw} this Sunday in Safed`,
+    subject: `Microbiome 2026 — your ${kw} this coming Sunday in Safed`,
     to: row.who,
     html,
     text,
@@ -246,7 +246,7 @@ ${esc(SIGNOFF)}<br>
   ].join('\n');
 
   return {
-    subject: `Microbiome 2026 — chairing ${session.name} this Sunday in Safed`,
+    subject: `Microbiome 2026 — chairing ${session.name} this coming Sunday in Safed`,
     to: name,
     html,
     text,
