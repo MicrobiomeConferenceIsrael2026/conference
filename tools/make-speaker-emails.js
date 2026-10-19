@@ -299,11 +299,18 @@ function appleScript(jobs) {
   return `-- Microbiome 2026 — create the speaker and chair emails as Outlook drafts.
 --
 -- Open in Script Editor (Applications > Utilities) and press Run.
--- Nothing is sent. Each message lands in Outlook's Drafts folder for you to
--- read and send yourself.
+-- Nothing is sent. Each message opens as a compose window: read it, then
+-- either press Send, or press Cmd-W to file it in Drafts for later.
 --
 -- TRY ONE FIRST: set mbOnlyFirst below to true, Run, and check the draft
 -- looks right. Then set it back to false and Run again for the rest.
+--
+-- CAN'T FIND THEM IN DRAFTS? A message made by AppleScript usually goes to
+-- the "On My Computer" Drafts folder, and Outlook hides that whole section by
+-- default: Outlook > Settings > General > untick "Hide On My Computer
+-- folders". mbOpenWindows below (on by default) sidesteps this by putting
+-- each message on screen, so you never have to go looking for it. The dialog
+-- at the end also names the folder they actually went to.
 --
 -- If it fails with "New mode is unscriptable", your Outlook is the New
 -- Outlook, which dropped AppleScript. Switch to Legacy Outlook from the
@@ -319,11 +326,14 @@ function appleScript(jobs) {
 -- "A file or directory where the object should be saved is required."
 
 property mbOnlyFirst : false
+property mbOpenWindows : true
 property mbMade : 0
 property mbFailed : ""
+property mbWhere : ""
 
 on mbDraft(mbSubject, mbHtml, mbToName, mbToAddr, mbCcList)
 	if mbOnlyFirst and mbMade > 0 then return
+	set mbSpot to ""
 	try
 		tell application "Microsoft Outlook"
 			set mbMsg to make new outgoing message with properties ¬
@@ -334,8 +344,16 @@ on mbDraft(mbSubject, mbHtml, mbToName, mbToAddr, mbCcList)
 				make new cc recipient at mbMsg with properties ¬
 					{email address:{name:(item 1 of mbOne), address:(item 2 of mbOne)}}
 			end repeat
+			-- Opening forces the message to materialise as a real compose
+			-- window. Without this it can sit in a hidden "On My Computer"
+			-- Drafts folder that you will never find.
+			if mbOpenWindows then open mbMsg
+			try
+				set mbSpot to (name of (folder of mbMsg)) as string
+			end try
 		end tell
 		set mbMade to mbMade + 1
+		if mbWhere is "" then set mbWhere to mbSpot
 	on error mbErr
 		set mbFailed to mbFailed & mbToName & " — " & mbErr & return
 	end try
@@ -343,19 +361,30 @@ end mbDraft
 
 set mbMade to 0
 set mbFailed to ""
+set mbWhere to ""
 set mbCcList to {${cc}}
 
 tell application "Microsoft Outlook" to activate
 
 ${calls}
 
+if mbWhere is "" then
+	set mbNote to "Outlook would not say which folder they went to."
+else
+	set mbNote to "Outlook filed them under: " & mbWhere
+end if
+
+if mbOpenWindows then
+	set mbNote to "Each one is open in its own window." & return & ¬
+		"Send it, or press Cmd-W to keep it as a draft." & return & return & mbNote
+end if
+
 if mbFailed is "" then
-	display dialog "Created " & mbMade & " drafts in Outlook." & return & return & ¬
-		"They are in the Drafts folder. Read each one, then send." ¬
+	display dialog "Created " & mbMade & " messages." & return & return & mbNote ¬
 		buttons {"OK"} default button 1 with title "Microbiome 2026"
 else
-	display dialog "Created " & mbMade & " drafts." & return & return & ¬
-		"These did not work:" & return & mbFailed ¬
+	display dialog "Created " & mbMade & " messages." & return & return & mbNote & ¬
+		return & return & "These did not work:" & return & mbFailed ¬
 		buttons {"OK"} default button 1 with title "Microbiome 2026"
 end if
 `;
