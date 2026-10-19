@@ -6,3 +6,5 @@ data-smoke/
 .DS_Store
 npm-debug.log*
 speaker-emails.md
+contacts.json
+emails/
