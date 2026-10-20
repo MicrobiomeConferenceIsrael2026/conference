@@ -34,8 +34,20 @@ const path = require('path');
 const c = require('../lib/content');
 
 const ROOT = path.join(__dirname, '..');
-const EML_DIR = path.join(ROOT, 'emails');
-const MD = path.join(ROOT, 'speaker-emails.md');
+
+/* --only "Name, Other Name" writes just those letters, into emails-update/,
+ * so re-sending two people after a program change does not mean regenerating
+ * — and risking re-sending — all twenty-odd. */
+const onlyArg = (() => {
+  const i = process.argv.indexOf('--only');
+  return i === -1 ? null : (process.argv[i + 1] || '');
+})();
+const ONLY = onlyArg
+  ? onlyArg.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean)
+  : null;
+
+const EML_DIR = path.join(ROOT, ONLY ? 'emails-update' : 'emails');
+const MD = path.join(ROOT, ONLY ? 'speaker-emails-update.md' : 'speaker-emails.md');
 
 /* --- details the program file does not carry ----------------------------- */
 
@@ -53,6 +65,37 @@ const ORGANIZER_OVERRIDES = {
   'David Zeevi': 'david.zeevi@weizmann.ac.il',
 };
 
+/* Addresses for people who never went through the registration form. */
+const EXTRA_CONTACTS = {
+  // 'Avidan Neumann': '',
+};
+
+/* Speakers whose opening paragraph should not be the standard one — someone
+ * whose slot moved after they were first written to, or who joined the
+ * program late. Everything below the opening (slot, venue, sign-off) is the
+ * same letter as everyone else gets. */
+const INTRO = {
+  'Jotham Suez': {
+    subject: 'Microbiome 2026 — your slot has moved to the closing keynote',
+    html: [
+      'We have had to rework the afternoon of Microbiome 2026, and we would like to ask you to change slots. You were down for a 15-minute talk at 14:55 in Session 4. We would now like you to close the day with the keynote at 16:55 — 25 minutes rather than 15.',
+      'We are sorry to move this so close to Sunday. If the later slot does not work for you, tell us and we will rearrange.',
+    ],
+    text: [
+      'We have had to rework the afternoon of Microbiome 2026, and we would like to ask you to change slots. You were down for a 15-minute talk at 14:55 in Session 4. We would now like you to close the day with the keynote at 16:55 — 25 minutes rather than 15.',
+      'We are sorry to move this so close to Sunday. If the later slot does not work for you, tell us and we will rearrange.',
+    ],
+  },
+  'Avidan Neumann': {
+    html: [
+      'We are very glad you are joining the program at Microbiome 2026. This is a late addition to the schedule, so apologies for the short notice — here is everything you need in one place before Sunday.',
+    ],
+    text: [
+      'We are very glad you are joining the program at Microbiome 2026. This is a late addition to the schedule, so apologies for the short notice — here is everything you need in one place before Sunday.',
+    ],
+  },
+};
+
 let contacts = {};
 try {
   contacts = JSON.parse(fs.readFileSync(path.join(ROOT, 'contacts.json'), 'utf8'));
@@ -61,7 +104,10 @@ try {
 }
 
 const addressOf = (name) =>
-  ORGANIZER_OVERRIDES[name] || (contacts[name] && contacts[name].email) || null;
+  ORGANIZER_OVERRIDES[name] ||
+  EXTRA_CONTACTS[name] ||
+  (contacts[name] && contacts[name].email) ||
+  null;
 
 const ORGANIZERS = c.committee.map((m) => m.name);
 const SIGNOFF = ORGANIZERS.slice(0, -1).join(', ') + ' and ' + ORGANIZERS[ORGANIZERS.length - 1];
@@ -148,9 +194,20 @@ function speakerLetter(row, session) {
   const first = row.who.split(' ')[0];
   const timeLine = `${row.time}–${row.end}${dur ? ` (${dur} minutes, including questions)` : ''}`;
 
+  const over = INTRO[row.who];
+  const standardLead =
+    `Thank you for agreeing to give a ${kw} at Microbiome 2026. We are looking forward to it, and wanted to put everything you need in one place before Sunday.`;
+  const leadHtml = (over ? over.html : [standardLead])
+    .map((p) => `<p style="${P}">${p}</p>`)
+    .join('\n');
+  const leadText = over ? over.text : [standardLead];
+  const subject = over && over.subject
+    ? over.subject
+    : `Microbiome 2026 — your ${kw} this coming Sunday in Safed`;
+
   const html = `<div style="${BODY}">
 <p style="${P}">Dear ${esc(first)},</p>
-<p style="${P}">Thank you for agreeing to give a ${kw} at Microbiome 2026. We are looking forward to it, and wanted to put everything you need in one place before Sunday.</p>
+${leadHtml}
 <p style="${P}"><strong>Your ${kw}</strong><br>
 <strong style="${LABEL}">Title:</strong> ${italicHtml(row.title)}<br>
 <strong style="${LABEL}">Time:</strong> ${esc(timeLine)}<br>
@@ -159,14 +216,14 @@ function speakerLetter(row, session) {
 ${dayBlockHtml()}
 <p style="${P}">The <a href="${SITE}#program" style="${LINK}">full program is on the conference site</a>.</p>
 <p style="${P}">If you could arrive a few minutes before your session we will load your slides and make sure everything runs. If you would rather send them in advance, just reply to this email.</p>
-<p style="${P}">Thank you again — see you in Safed on Sunday.</p>
+<p style="${P}">${over ? 'Thank you' : 'Thank you again'} — see you in Safed on Sunday.</p>
 <p style="${P}">Warm regards,<br>${esc(SIGNOFF)}<br>
 <span style="${LABEL}">Microbiome 2026 organizing committee</span></p>
 </div>`;
 
   const text = [
     `Dear ${first},`, '',
-    `Thank you for agreeing to give a ${kw} at Microbiome 2026. We are looking forward to it, and wanted to put everything you need in one place before Sunday.`, '',
+    ...leadText.flatMap((p) => [p, '']),
     `YOUR ${kw.toUpperCase()}`,
     `Title: ${plain(row.title)}`,
     `Time: ${timeLine}`,
@@ -174,11 +231,11 @@ ${dayBlockHtml()}
     'THE DAY', dayBlockText(), '',
     `Full program: ${SITE}#program`, '',
     'If you could arrive a few minutes before your session we will load your slides and make sure everything runs. If you would rather send them in advance, just reply to this email.', '',
-    'Thank you again — see you in Safed on Sunday.', '',
+    `${over ? 'Thank you' : 'Thank you again'} — see you in Safed on Sunday.`, '',
     'Warm regards,', SIGNOFF, 'Microbiome 2026 organizing committee',
   ].join('\n');
 
-  return { subject: `Microbiome 2026 — your ${kw} this coming Sunday in Safed`, to: row.who, html, text };
+  return { subject, to: row.who, html, text };
 }
 
 function chairLetter(name, session) {
@@ -481,6 +538,21 @@ sessions.forEach((s) => {
 });
 jobs.forEach((j) => { j.address = addressOf(j.name); });
 
+let selected = jobs;
+if (ONLY) {
+  selected = jobs.filter((j) => ONLY.includes(j.name.toLowerCase()));
+  const unmatched = ONLY.filter(
+    (n) => !jobs.some((j) => j.name.toLowerCase() === n)
+  );
+  if (unmatched.length) {
+    console.error(`\n  --only matched nothing for: ${unmatched.join(', ')}`);
+    console.error(`  Names on the program: ${[...new Set(jobs.map((j) => j.name))].join(', ')}\n`);
+    process.exit(1);
+  }
+}
+jobs.length = 0;
+jobs.push(...selected);
+
 const missing = jobs.filter((j) => !j.address).map((j) => j.name);
 
 jobs.forEach((j, i) => {
@@ -519,10 +591,11 @@ jobs.forEach((j) => {
 
 fs.writeFileSync(MD, md);
 
-console.log(`\n  ${jobs.length} drafts written`);
-console.log(`    emails/outlook-drafts.applescript   Outlook drafts, formatted`);
-console.log(`    emails/send.html                    one-click mailto, plain text`);
-console.log(`    emails/*.eml                        ${jobs.length} message files`);
-console.log(`    speaker-emails.md                   text version`);
+const D = path.basename(EML_DIR);
+console.log(`\n  ${jobs.length} drafts written${ONLY ? ` (--only: ${jobs.map((j) => j.name).join(', ')})` : ''}`);
+console.log(`    ${D}/outlook-drafts.applescript`.padEnd(40) + 'Outlook drafts, formatted');
+console.log(`    ${D}/send.html`.padEnd(40) + 'one-click mailto, plain text');
+console.log(`    ${D}/*.eml`.padEnd(40) + `${jobs.length} message files`);
+console.log(`    ${path.basename(MD)}`.padEnd(40) + 'text version');
 if (missing.length) console.log(`\n  No address for: ${missing.join(', ')}`);
 console.log('');

@@ -8,3 +8,5 @@ npm-debug.log*
 speaker-emails.md
 contacts.json
 emails/
+emails-update/
+speaker-emails-update.md
