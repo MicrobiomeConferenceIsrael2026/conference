@@ -67,7 +67,7 @@ const ORGANIZER_OVERRIDES = {
 
 /* Addresses for people who never went through the registration form. */
 const EXTRA_CONTACTS = {
-  // 'Avidan Neumann': '',
+  'Avidan Neumann': 'auneumann@gmail.com',
 };
 
 /* Speakers whose opening paragraph should not be the standard one — someone
